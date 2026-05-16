@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BD.follower — Premium SMM Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAEPrnE3smXYihAET6Bsb64dYUZxou00FU",
+  authDomain: "bd-follower-a2408.firebaseapp.com",
+  projectId: "bd-follower-a2408",
+  storageBucket: "bd-follower-a2408.firebasestorage.app",
+  messagingSenderId: "55297748909",
+  appId: "1:55297748909:web:7ced74f8c9401d057bbb24"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0b0f;--bg2:#111318;--bg3:#1a1d25;--card:#161921;
+  --border:#ffffff12;--border2:#ffffff20;--text:#f0f2ff;--text2:#9ba3c0;--text3:#5a6280;
+  --accent:#6c5ce7;--accent2:#a78bfa;--accent3:#00d4aa;--gold:#f59e0b;
+  --green:#10b981;--red:#ef4444;--blue:#3b82f6;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Syne',sans-serif}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,11,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:.1rem;align-items:center}
+.nav-btn{background:none;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:.45rem .7rem;border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{color:var(--text);background:var(--bg3)}
+.nav-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:500}
+.balance-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:.28rem .85rem;font-size:.75rem;color:var(--accent3);font-weight:600;white-space:nowrap}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:.4rem;border:none;background:none}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text2);border-radius:2px}
+.mob-menu{display:none;position:fixed;top:60px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);z-index:99;padding:.875rem;flex-direction:column;gap:.35rem}
+.mob-menu.open{display:flex}
+.mob-menu .nav-btn{text-align:left;padding:.7rem 1rem;font-size:.875rem;width:100%}
+
+/* PAGES */
+.page{display:none;padding-top:60px;min-height:100vh}
+.page.active{display:block}
+
+/* HERO */
+.hero{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:2rem 1rem;text-align:center}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(108,92,231,.22),transparent),radial-gradient(ellipse 50% 40% at 85% 80%,rgba(0,212,170,.1),transparent);pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(108,92,231,.15);border:1px solid rgba(108,92,231,.3);border-radius:20px;padding:.32rem 1rem;font-size:.78rem;color:var(--accent2);margin-bottom:1.5rem}
+.hero h1{font-size:clamp(1.9rem,7vw,4.5rem);font-weight:800;line-height:1.1;margin-bottom:1.25rem;max-width:780px}
+.hero h1 span{background:linear-gradient(135deg,var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:clamp(.875rem,2.5vw,1.05rem);color:var(--text2);max-width:480px;line-height:1.7;margin-bottom:2rem}
+.hero-btns{display:flex;gap:.875rem;flex-wrap:wrap;justify-content:center}
+.btn{padding:.65rem 1.4rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .25s;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(108,92,231,.38)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-2px)}
+.stats-row{display:flex;gap:1.5rem;margin-top:2.5rem;flex-wrap:wrap;justify-content:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:.78rem;color:var(--text3);margin-top:.15rem}
+
+/* SECTION */
+.section{padding:3rem 1rem;max-width:1200px;margin:0 auto}
+.page-header{background:linear-gradient(135deg,rgba(108,92,231,.08),transparent);border-bottom:1px solid var(--border);padding:1.5rem 1rem}
+.page-header h1{font-size:1.5rem;font-weight:700;margin-bottom:.2rem}
+.page-header p{color:var(--text2);font-size:.875rem}
+
+/* PLATFORM TABS */
+.platform-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.ptab{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.42rem .95rem;font-size:.8rem;color:var(--text2);cursor:pointer;transition:all .2s}
+.ptab.active{background:linear-gradient(135deg,rgba(108,92,231,.2),rgba(167,139,250,.15));border-color:var(--accent2);color:var(--accent2)}
+
+/* SERVICE GRID */
+.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.875rem}
+.service-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;transition:all .25s}
+.service-card:hover{border-color:var(--accent2);transform:translateY(-2px)}
+.svc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.65rem;gap:.5rem}
+.svc-name{font-size:.875rem;font-weight:500;line-height:1.4;flex:1}
+.svc-price{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--accent3);white-space:nowrap;flex-shrink:0}
+.svc-tags{display:flex;gap:.35rem;flex-wrap:wrap}
+.tag{font-size:.66rem;padding:.17rem .5rem;border-radius:6px;font-weight:500}
+.tag-g{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.18)}
+.tag-b{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.18)}
+.tag-r{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.18)}
+.tag-p{background:rgba(108,92,231,.1);color:var(--accent2);border:1px solid rgba(108,92,231,.18)}
+.tag-gold{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.18)}
+.order-btn{width:100%;margin-top:.75rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:8px;padding:.55rem;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s}
+.order-btn:hover{opacity:.85}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+
+/* FORM */
+.fg{margin-bottom:1rem}
+label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:.4rem;font-weight:500}
+input,select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.68rem .875rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select option{background:var(--bg2)}
+textarea{resize:vertical;min-height:85px}
+.submit-btn{width:100%;padding:.82rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .25s;margin-top:.2rem}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(108,92,231,.38)}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.err-box{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:.7rem .875rem;margin-bottom:.875rem;font-size:.83rem;color:var(--red)}
+.suc-box{display:none;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:.7rem .875rem;margin-bottom:.875rem;font-size:.83rem;color:var(--green)}
+
+/* BKASH */
+.bkash-box{background:linear-gradient(135deg,rgba(233,30,99,.1),rgba(233,30,99,.05));border:1px solid rgba(233,30,99,.25);border-radius:14px;padding:1.1rem;margin-bottom:1.1rem}
+.bkash-logo{font-family:'Syne',sans-serif;font-weight:700;color:#e91e63;font-size:.95rem;margin-bottom:.4rem}
+.bkash-num{font-size:1.25rem;font-weight:700;letter-spacing:2px;color:var(--text);margin:.35rem 0;word-break:break-all}
+.bkash-note{font-size:.77rem;color:var(--text2)}
+.bonus-bar{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(236,72,153,.07));border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:.8rem 1rem;display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem;font-size:.84rem;color:var(--gold)}
+
+/* PROFILE */
+.profile-header{background:linear-gradient(135deg,rgba(108,92,231,.14),rgba(0,212,170,.07));border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.avatar{width:60px;height:60px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;flex-shrink:0}
+.balance-display{margin-left:auto;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:.8rem 1.1rem;text-align:right}
+.balance-amt{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accent3)}
+.balance-lbl{font-size:.7rem;color:var(--text3)}
+
+/* STATS MINI */
+.mini-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.75rem;margin-bottom:1.4rem}
+.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.mini-stat-num{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:.15rem}
+.mini-stat-label{font-size:.72rem;color:var(--text3)}
+.g .mini-stat-num{color:var(--green)}.pu .mini-stat-num{color:var(--accent2)}.go .mini-stat-num{color:var(--gold)}
+
+/* ORDER CARD */
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.95rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.order-icon{width:38px;height:38px;background:var(--bg3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.order-info{flex:1;min-width:150px}
+.order-svc{font-weight:500;font-size:.84rem;margin-bottom:.18rem}
+.order-meta{font-size:.74rem;color:var(--text3)}
+.order-amt{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;color:var(--accent3);white-space:nowrap}
+
+/* TICKET */
+.ticket-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.95rem;cursor:pointer;transition:all .2s}
+.ticket-item:hover{border-color:var(--accent2)}
+.ticket-item.unread{border-left:3px solid var(--accent2)}
+.ticket-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;flex-wrap:wrap;gap:.4rem}
+
+/* ADMIN */
+.dash-layout{display:flex;gap:1.1rem;padding:1.1rem;max-width:1400px;margin:0 auto}
+.dash-sidebar{width:190px;flex-shrink:0}
+.dash-sidebar-inner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.8rem;position:sticky;top:72px}
+.dnav{display:flex;align-items:center;gap:.55rem;width:100%;background:none;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:.58rem .75rem;border-radius:8px;cursor:pointer;transition:all .2s;text-align:left}
+.dnav:hover,.dnav.active{background:rgba(108,92,231,.12);color:var(--accent2)}
+.dnav svg{width:14px;height:14px;flex-shrink:0}
+.dash-content{flex:1;min-width:0}
+.dash-section{display:none}
+.dash-section.active{display:block}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.4rem}
+.dash-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.dash-stat-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:.15rem}
+.dash-stat-label{font-size:.72rem;color:var(--text3)}
+.d-g .dash-stat-num{color:var(--green)}.d-p .dash-stat-num{color:var(--accent2)}.d-go .dash-stat-num{color:var(--gold)}.d-b .dash-stat-num{color:var(--blue)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th{background:var(--bg3);padding:.6rem .875rem;text-align:left;font-size:.72rem;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:.75rem .875rem;font-size:.82rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.pill{display:inline-block;padding:.2rem .65rem;border-radius:20px;font-size:.7rem;font-weight:500;white-space:nowrap}
+.pill-pending{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.2)}
+.pill-approved,.pill-completed{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.pill-processing{background:rgba(108,92,231,.12);color:var(--accent2);border:1px solid rgba(108,92,231,.2)}
+.pill-open{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.2)}
+.pill-closed{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.act-btn{padding:.28rem .7rem;border-radius:6px;font-size:.74rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.app-btn{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.app-btn:hover{background:rgba(16,185,129,.25)}
+.rej-btn{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.rej-btn:hover{background:rgba(239,68,68,.22)}
+.td-acts{display:flex;gap:.35rem;flex-wrap:wrap}
+.status-select{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:.28rem .5rem;color:var(--text);font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;outline:none}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);padding:1rem}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.875rem;max-width:410px;width:100%;text-align:center;transform:scale(.9);transition:transform .3s}
+.modal-overlay.show .modal{transform:scale(1)}
+.modal-icon{font-size:2.8rem;margin-bottom:.8rem}
+.modal h3{font-size:1.25rem;margin-bottom:.6rem}
+.modal p{color:var(--text2);line-height:1.7;margin-bottom:1.2rem;font-size:.875rem}
+.modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.55rem 1.4rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem;transition:all .2s}
+.modal-close:hover{border-color:var(--accent2)}
+.order-modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.6rem;max-width:460px;width:100%;transform:translateY(20px);transition:transform .3s;max-height:90vh;overflow-y:auto}
+.modal-overlay.show .order-modal{transform:translateY(0)}
+
+/* NOTIF */
+.notif{position:fixed;top:68px;right:1rem;z-index:300;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:.8rem 1rem;min-width:240px;max-width:300px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.notif.show{transform:translateX(0)}
+.notif-head{display:flex;align-items:center;gap:.45rem;font-weight:500;margin-bottom:.18rem;font-size:.875rem}
+.notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.notif-body{font-size:.8rem;color:var(--text2)}
+
+/* LOADING */
+.loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page-loader{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem}
+.page-loader .logo-big{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* MOBILE */
+@media(max-width:680px){
+  .hamburger{display:flex}
+  nav .nav-links{display:none}
+  .dash-layout{flex-direction:column;padding:.75rem}
+  .dash-sidebar{width:100%}
+  .dash-sidebar-inner{position:static;display:flex;flex-wrap:wrap;gap:.3rem;padding:.6rem}
+  .dnav{flex:1;min-width:70px;justify-content:center;padding:.45rem .35rem;font-size:.72rem}
+  .service-grid{grid-template-columns:1fr}
+  .platform-tabs .ptab{font-size:.75rem;padding:.38rem .7rem}
+  .profile-header{flex-direction:column;text-align:center}
+  .balance-display{margin-left:0;width:100%;text-align:center}
+  .section{padding:1.75rem .875rem}
+  table{min-width:380px}
+  .support-cols{grid-template-columns:1fr!important}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fa1{animation:fadeUp .5s .1s both}.fa2{animation:fadeUp .5s .2s both}.fa3{animation:fadeUp .5s .3s both}
+</style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="logo-big">BD.follower</div>
+  <div class="loading-spinner" style="border-color:rgba(167,139,250,.3);border-top-color:var(--accent2)"></div>
+  <div style="font-size:.85rem;color:var(--text3)">Loading...</div>
+</div>
+
+<!-- NOTIF -->
+<div class="notif" id="notif">
+  <div class="notif-head"><div class="notif-dot" id="notif-dot"></div><span id="notif-title"></span></div>
+  <div class="notif-body" id="notif-body"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">BD.follower</div>
+  <div class="nav-links" id="desk-nav">
+    <button class="nav-btn" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('services')">Services</button>
+    <button class="nav-btn" onclick="showPage('addfunds')" id="nav-addfunds" style="display:none">Add Funds</button>
+    <button class="nav-btn" onclick="showPage('orders')" id="nav-orders" style="display:none">My Orders</button>
+    <button class="nav-btn" onclick="showPage('support')" id="nav-support" style="display:none">Support</button>
+    <div class="balance-pill" id="nav-bal" style="display:none">💰 <span id="nav-bal-amt">0</span> BDT</div>
+    <button class="nav-btn" onclick="showPage('profile')" id="nav-profile" style="display:none">👤 Profile</button>
+    <button class="nav-btn" onclick="doLogout()" id="nav-logout" style="display:none;color:var(--red)">Logout</button>
+    <button class="nav-btn primary" onclick="showPage('login')" id="nav-login">Login</button>
+    <button class="nav-btn" onclick="showPage('admin')" style="opacity:.4;font-size:.72rem">Admin</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:.5rem">
+    <div class="balance-pill" id="mob-bal" style="display:none;font-size:.72rem">💰 <span id="mob-bal-amt">0</span></div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mob-menu">
+  <button class="nav-btn" onclick="sp('home');cm()">🏠 Home</button>
+  <button class="nav-btn" onclick="sp('services');cm()">📦 Services</button>
+  <button class="nav-btn" onclick="sp('addfunds');cm()" id="m-addfunds" style="display:none">💳 Add Funds</button>
+  <button class="nav-btn" onclick="sp('orders');cm()" id="m-orders" style="display:none">📋 My Orders</button>
+  <button class="nav-btn" onclick="sp('support');cm()" id="m-support" style="display:none">💬 Support</button>
+  <button class="nav-btn" onclick="sp('profile');cm()" id="m-profile" style="display:none">👤 Profile</button>
+  <button class="nav-btn" onclick="doLogout();cm()" id="m-logout" style="display:none;color:var(--red)">🚪 Logout</button>
+  <button class="nav-btn primary" onclick="sp('login');cm()" id="m-login">Login / Register</button>
+  <button class="nav-btn" onclick="sp('admin');cm()" style="opacity:.5;font-size:.8rem">⚙ Admin</button>
+</div>
+
+<!-- ======== HOME ======== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-tag fa1">🇧🇩 Bangladesh's #1 SMM Panel</div>
+    <h1 class="fa2">Grow Your <span>Social Media</span> Presence Fast</h1>
+    <p class="fa3">Premium followers, likes & views for YouTube, Facebook, Instagram, TikTok & LinkedIn. Real results, guaranteed.</p>
+    <div class="hero-btns fa3">
+      <button class="btn btn-primary" onclick="showPage('services')">Browse Services</button>
+      <button class="btn btn-outline" onclick="showPage('register')">Get Started Free</button>
+    </div>
+    <div class="stats-row fa3">
+      <div class="stat-item"><div class="stat-num">10K+</div><div class="stat-label">Happy Customers</div></div>
+      <div class="stat-item"><div class="stat-num">50+</div><div class="stat-label">Services</div></div>
+      <div class="stat-item"><div class="stat-num">99%</div><div class="stat-label">Success Rate</div></div>
+      <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">Support</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2 style="font-size:clamp(1.3rem,3vw,2rem);margin-bottom:.5rem">Why BD.follower?</h2>
+    <p style="color:var(--text2);margin-bottom:1.75rem;font-size:.9rem">Everything you need to dominate social media</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem">
+      <div class="card"><div style="font-size:1.6rem;margin-bottom:.75rem">⚡</div><h3 style="font-size:.95rem;margin-bottom:.35rem">Instant Delivery</h3><p style="color:var(--text2);font-size:.84rem;line-height:1.6">Orders process within minutes of payment verification.</p></div>
+      <div class="card"><div style="font-size:1.6rem;margin-bottom:.75rem">🛡️</div><h3 style="font-size:.95rem;margin-bottom:.35rem">Drop Guarantee</h3><p style="color:var(--text2);font-size:.84rem;line-height:1.6">Premium packages with refill guarantee up to 365 days.</p></div>
+      <div class="card"><div style="font-size:1.6rem;margin-bottom:.75rem">💳</div><h3 style="font-size:.95rem;margin-bottom:.35rem">bKash Payment</h3><p style="color:var(--text2);font-size:.84rem;line-height:1.6">Easy bKash payment. Balance added after admin approval.</p></div>
+      <div class="card"><div style="font-size:1.6rem;margin-bottom:.75rem">🎁</div><h3 style="font-size:.95rem;margin-bottom:.35rem">Cashback & Bonus</h3><p style="color:var(--text2);font-size:.84rem;line-height:1.6">5% cashback on 1,000 BDT spend. 10% bonus on big deposits.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== SERVICES ======== -->
+<div class="page" id="page-services">
+  <div class="page-header"><h1>All Services</h1><p>Premium social media growth packages</p></div>
+  <div class="section" style="padding-top:1.5rem">
+    <div class="platform-tabs">
+      <button class="ptab active" onclick="showPlatform('yt',this)">▶️ YouTube</button>
+      <button class="ptab" onclick="showPlatform('fb',this)">📘 Facebook</button>
+      <button class="ptab" onclick="showPlatform('li',this)">💼 LinkedIn</button>
+      <button class="ptab" onclick="showPlatform('ig',this)">📸 Instagram</button>
+      <button class="ptab" onclick="showPlatform('tt',this)">🎵 TikTok</button>
+    </div>
+    <div id="svc-container" class="service-grid"></div>
+  </div>
+</div>
+
+<!-- ======== ADD FUNDS ======== -->
+<div class="page" id="page-addfunds">
+  <div class="page-header"><h1>Add Funds</h1><p>Top up your balance via bKash</p></div>
+  <div class="section" style="padding-top:1.5rem;max-width:560px">
+    <div class="bonus-bar">🎁 <span><strong>Special Offer!</strong> Add 500 BDT or more and get up to 10% extra bonus!</span></div>
+    <div class="bkash-box">
+      <div class="bkash-logo">bKash — Send Money</div>
+      <div class="bkash-num">01540588531</div>
+      <div class="bkash-note">⚠️ শুধু "Send Money" অপশন ব্যবহার করুন। Personal bKash charge প্রযোজ্য।</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:1rem;font-size:.95rem">Payment Submission Form</h3>
+      <div id="pay-err" class="err-box"></div>
+      <div id="pay-suc" class="suc-box"></div>
+      <div class="fg"><label>Your Name / Username</label><input type="text" id="fund-name" placeholder="Your name or username"></div>
+      <div class="fg"><label>Amount Sent (BDT)</label><input type="number" id="fund-amount" placeholder="e.g. 500" min="1" oninput="checkBonus()"></div>
+      <div class="fg"><label>bKash Transaction ID</label><input type="text" id="fund-txn" placeholder="e.g. 8FG2H9KL01"></div>
+      <button class="submit-btn" id="pay-submit-btn" onclick="submitPayment()">Submit Payment Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== LOGIN ======== -->
+<div class="page" id="page-login">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:1.5rem">
+    <div style="width:100%;max-width:390px">
+      <h1 style="text-align:center;margin-bottom:.4rem;font-size:1.75rem">Welcome Back</h1>
+      <p style="text-align:center;color:var(--text2);margin-bottom:1.6rem;font-size:.875rem">Login to your BD.follower account</p>
+      <div class="card">
+        <div id="login-err" class="err-box"></div>
+        <div class="fg"><label>Username</label><input type="text" id="login-user" placeholder="Your username"></div>
+        <div class="fg"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="submit-btn" id="login-btn" onclick="doLogin()">Login</button>
+        <p style="text-align:center;margin-top:.875rem;font-size:.83rem;color:var(--text2)">No account? <a onclick="showPage('register')" style="color:var(--accent2);cursor:pointer">Register here</a></p>
+      </div>
+      <p style="text-align:center;margin-top:.75rem;font-size:.75rem"><a onclick="showPage('admin')" style="color:var(--text3);cursor:pointer">Admin Login →</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ======== REGISTER ======== -->
+<div class="page" id="page-register">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:1.5rem">
+    <div style="width:100%;max-width:410px">
+      <h1 style="text-align:center;margin-bottom:.4rem;font-size:1.75rem">Create Account</h1>
+      <p style="text-align:center;color:var(--text2);margin-bottom:1.6rem;font-size:.875rem">Join BD.follower — Free forever!</p>
+      <div class="card">
+        <div id="reg-err" class="err-box"></div>
+        <div class="fg"><label>Full Name</label><input type="text" id="reg-name" placeholder="Your full name"></div>
+        <div class="fg"><label>Username <span style="color:var(--text3)">(no spaces)</span></label><input type="text" id="reg-user" placeholder="cooluser123"></div>
+        <div class="fg"><label>Phone Number</label><input type="tel" id="reg-phone" placeholder="01XXXXXXXXX"></div>
+        <div class="fg"><label>Password <span style="color:var(--text3)">(min 6 chars)</span></label><input type="password" id="reg-pass" placeholder="Create a password"></div>
+        <div class="fg"><label>Confirm Password</label><input type="password" id="reg-pass2" placeholder="Repeat password"></div>
+        <button class="submit-btn" id="reg-btn" onclick="doRegister()">Create Account</button>
+        <p style="text-align:center;margin-top:.875rem;font-size:.83rem;color:var(--text2)">Already registered? <a onclick="showPage('login')" style="color:var(--accent2);cursor:pointer">Login</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== PROFILE ======== -->
+<div class="page" id="page-profile">
+  <div class="section">
+    <div class="profile-header">
+      <div class="avatar" id="pf-avatar">U</div>
+      <div>
+        <h2 id="pf-name" style="font-size:1.2rem;margin-bottom:.2rem">User</h2>
+        <p id="pf-phone" style="color:var(--text2);font-size:.875rem"></p>
+        <p id="pf-user" style="color:var(--text3);font-size:.78rem"></p>
+      </div>
+      <div class="balance-display">
+        <div class="balance-lbl">Balance</div>
+        <div class="balance-amt" id="pf-balance">0</div>
+        <div class="balance-lbl">BDT</div>
+      </div>
+    </div>
+    <div class="mini-stats">
+      <div class="mini-stat g"><div class="mini-stat-num" id="pf-spent">0</div><div class="mini-stat-label">BDT Spent</div></div>
+      <div class="mini-stat pu"><div class="mini-stat-num" id="pf-orders">0</div><div class="mini-stat-label">Orders</div></div>
+      <div class="mini-stat go"><div class="mini-stat-num" id="pf-cashback">0</div><div class="mini-stat-label">Cashback BDT</div></div>
+    </div>
+    <h3 style="margin-bottom:.875rem;font-size:.95rem">My Recent Orders</h3>
+    <div id="pf-orders-list" style="display:flex;flex-direction:column;gap:.6rem"></div>
+  </div>
+</div>
+
+<!-- ======== MY ORDERS ======== -->
+<div class="page" id="page-orders">
+  <div class="page-header"><h1>My Orders</h1><p>Track all your service orders</p></div>
+  <div class="section" style="padding-top:1.5rem">
+    <div id="orders-list" style="display:flex;flex-direction:column;gap:.6rem">
+      <div style="color:var(--text3);text-align:center;padding:2rem">Loading orders...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== SUPPORT ======== -->
+<div class="page" id="page-support">
+  <div class="page-header"><h1>Help & Support</h1><p>Submit a ticket — we reply ASAP</p></div>
+  <div class="section" style="padding-top:1.5rem">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem" class="support-cols">
+      <div>
+        <h3 style="margin-bottom:.875rem;font-size:.95rem">New Ticket</h3>
+        <div class="card">
+          <div class="fg"><label>Subject</label><input type="text" id="ticket-subj" placeholder="e.g. Payment not credited"></div>
+          <div class="fg"><label>Message</label><textarea id="ticket-msg" placeholder="Describe your issue in detail..."></textarea></div>
+          <button class="submit-btn" onclick="submitTicket()">Send Message</button>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:.875rem;font-size:.95rem">Your Tickets</h3>
+        <div id="user-tickets" style="display:flex;flex-direction:column;gap:.6rem">
+          <div style="color:var(--text3);font-size:.84rem">No tickets yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== ADMIN ======== -->
+<div class="page" id="page-admin">
+  <!-- Login Screen -->
+  <div id="admin-login-sc" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:1.5rem">
+    <div style="width:100%;max-width:370px">
+      <h1 style="text-align:center;margin-bottom:.4rem;font-size:1.55rem">🔐 Admin Login</h1>
+      <p style="text-align:center;color:var(--text2);margin-bottom:1.6rem;font-size:.875rem">Restricted — Admin Only</p>
+      <div class="card">
+        <div id="admin-err" class="err-box">Wrong password. Try again.</div>
+        <div class="fg"><label>Admin Password</label><input type="password" id="admin-pass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+        <button class="submit-btn" onclick="doAdminLogin()">Login as Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="admin-dash" style="display:none">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+      <div><h1>Admin Dashboard</h1><p>BD.follower Control Panel</p></div>
+      <button class="btn btn-outline" onclick="adminLogout()" style="font-size:.78rem">🚪 Logout</button>
+    </div>
+    <div class="dash-layout">
+      <div class="dash-sidebar">
+        <div class="dash-sidebar-inner">
+          <button class="dnav active" onclick="sd('payments',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Payments</button>
+          <button class="dnav" onclick="sd('orders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Orders</button>
+          <button class="dnav" onclick="sd('inbox',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Inbox</button>
+          <button class="dnav" onclick="sd('users',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Users</button>
+        </div>
+      </div>
+      <div class="dash-content">
+        <!-- Stats -->
+        <div class="dash-grid">
+          <div class="dash-stat d-g"><div class="dash-stat-num" id="st-rev">৳ 0</div><div class="dash-stat-label">Revenue</div></div>
+          <div class="dash-stat d-p"><div class="dash-stat-num" id="st-pp">0</div><div class="dash-stat-label">Pending Payments</div></div>
+          <div class="dash-stat d-go"><div class="dash-stat-num" id="st-ord">0</div><div class="dash-stat-label">Total Orders</div></div>
+          <div class="dash-stat d-b"><div class="dash-stat-num" id="st-usr">0</div><div class="dash-stat-label">Users</div></div>
+        </div>
+
+        <!-- PAYMENTS -->
+        <div class="dash-section active" id="dash-payments">
+          <h2 style="margin-bottom:.875rem;font-size:1.05rem">⏳ Pending Payments</h2>
+          <div class="table-wrap">
+            <table><thead><tr><th>User</th><th>Amount</th><th>Txn ID</th><th>Time</th><th>Action</th></tr></thead>
+            <tbody id="admin-pay-tb"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="dash-section" id="dash-orders">
+          <h2 style="margin-bottom:.875rem;font-size:1.05rem">📋 All Orders</h2>
+          <div class="table-wrap">
+            <table><thead><tr><th>Order ID</th><th>User</th><th>Service</th><th>Amount</th><th>Status</th><th>Change Status</th></tr></thead>
+            <tbody id="admin-ord-tb"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+
+        <!-- INBOX -->
+        <div class="dash-section" id="dash-inbox">
+          <h2 style="margin-bottom:.875rem;font-size:1.05rem">📬 Support Inbox</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem">
+            <div id="admin-ticket-list" style="display:flex;flex-direction:column;gap:.6rem"><div style="color:var(--text3);font-size:.84rem">Loading...</div></div>
+            <div id="reply-panel" class="card" style="display:none">
+              <h3 id="reply-subj" style="font-size:.9rem;margin-bottom:.2rem"></h3>
+              <p id="reply-from" style="font-size:.75rem;color:var(--text3);margin-bottom:.75rem"></p>
+              <div id="reply-msg-txt" style="font-size:.84rem;color:var(--text2);background:var(--bg3);border-radius:8px;padding:.8rem;margin-bottom:.75rem;line-height:1.6"></div>
+              <label style="display:block;font-size:.78rem;color:var(--text2);margin-bottom:.35rem">Your Reply</label>
+              <textarea id="admin-reply" placeholder="Type reply..." style="margin-bottom:.6rem;min-height:70px"></textarea>
+              <button class="submit-btn" style="padding:.55rem;font-size:.84rem" onclick="sendReply()">Send Reply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- USERS -->
+        <div class="dash-section" id="dash-users">
+          <h2 style="margin-bottom:.875rem;font-size:1.05rem">👥 Registered Users</h2>
+          <div class="table-wrap">
+            <table><thead><tr><th>Name</th><th>Username</th><th>Phone</th><th>Balance</th><th>Total Spent</th><th>Orders</th></tr></thead>
+            <tbody id="admin-usr-tb"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal">
+    <div class="modal-icon">🎉</div>
+    <h3>Payment Submitted!</h3>
+    <p>Request received! <strong style="color:var(--accent3)">Balance will update within 1–5 minutes</strong> after admin approval.</p>
+    <button class="modal-close" onclick="closeModal('pay-modal')">Got it!</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bonus-modal">
+  <div class="modal">
+    <div class="modal-icon">🎁</div>
+    <h3>Bonus Offer!</h3>
+    <p>You're depositing <strong style="color:var(--gold)" id="bonus-amt">500+</strong> BDT!<br>Get up to <strong style="color:var(--accent3)">10% EXTRA BONUS</strong>!</p>
+    <button class="modal-close" onclick="closeModal('bonus-modal')">Claim Bonus!</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-modal">
+  <div class="order-modal">
+    <h3 style="margin-bottom:.25rem;font-size:1.1rem" id="om-title">Order Service</h3>
+    <p style="color:var(--text2);font-size:.8rem;margin-bottom:1rem" id="om-desc"></p>
+    <div style="background:var(--bg3);border-radius:10px;padding:.8rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.875rem">Cost:</span>
+      <span style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent3)" id="om-price">0 BDT</span>
+    </div>
+    <div style="background:var(--bg3);border-radius:10px;padding:.8rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.875rem">Your Balance:</span>
+      <span style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;color:var(--green)" id="om-bal">0 BDT</span>
+    </div>
+    <div class="fg"><label>Your Profile / Page URL</label><input type="url" id="order-url" placeholder="https://youtube.com/channel/..."></div>
+    <div style="display:flex;gap:.6rem">
+      <button class="submit-btn" id="place-order-btn" onclick="placeOrder()" style="flex:1">Place Order</button>
+      <button class="btn btn-outline" onclick="closeModal('order-modal')" style="white-space:nowrap">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="order-ok-modal">
+  <div class="modal">
+    <div class="modal-icon">✅</div>
+    <h3>Order Placed!</h3>
+    <p>Order placed! Now <strong style="color:var(--blue)">processing</strong>. Track it in My Orders.</p>
+    <button class="modal-close" onclick="closeModal('order-ok-modal');showPage('orders')">Track Order</button>
+  </div>
+</div>
+
+<script>
+// ======= SERVICES DATA =======
+const SVCS = {
+  yt:[
+    {name:'1K YouTube Subs — Natural Growth',price:5000,tags:['Natural Growth','90 Days Refill','HQ'],ticket:'1603'},
+    {name:'1K YouTube Subs — Monthly Refill',price:3500,tags:['HQ+Natural','180 Days Refill'],ticket:'1172'},
+    {name:'1K YouTube Subs — HQ 90 Days',price:3000,tags:['HQ','90 Days Refill','0–5% Drop'],ticket:'1603'},
+    {name:'1K YouTube Subs — Real 60 Days',price:2500,tags:['HQ & Real','60 Days Refill','0–5% Drop'],ticket:'1597'},
+    {name:'1K YouTube Subs — 30 Day Refill',price:1550,tags:['HQ & Real','30 Days Refill'],ticket:'1591'},
+    {name:'1K YouTube Subs — Budget',price:999,tags:['HQ Accounts','30 Days Refill','15–30d Delivery'],ticket:'1915'},
+    {name:'1K YouTube Subs — Cheapest',price:499,tags:['HQ Accounts','90 Days Refill'],ticket:'1595'},
+    {name:'1K YouTube Subs — 180 Day Pack',price:3999,tags:['HQ & Real','Natural Growth','180 Days Refill'],ticket:'1172'},
+  ],
+  fb:[
+    {name:'1K FB Followers (Page) — #1 Demanded',price:279,tags:['0% Drop','30 Days Refill'],ticket:'2104'},
+    {name:'1K FB Likes + Followers — Lifetime',price:999,tags:['Original Active','Lifetime Refill','Worldwide'],ticket:'112'},
+    {name:'1K FB Followers — Worldwide Premium',price:599,tags:['Original Active','Lifetime Refill'],ticket:'1186'},
+    {name:'1K FB Likes + Followers — Worldwide',price:700,tags:['Original ID','90 Days Refill'],ticket:'298'},
+    {name:'1K FB Likes + Followers — Non-Drop',price:500,tags:['HQ Non-Drop','30 Days Refill'],ticket:'Wa'},
+    {name:'1K FB Page Followers — Budget Bot',price:100,tags:['Auto','30 Days Refill','Bot'],ticket:'298'},
+    {name:'1K FB Likes + Followers — BD Targeted',price:650,tags:['BD Targeted','Lifetime','90 Days Refill'],ticket:'Wa'},
+    {name:'1K FB Followers — BD HQ',price:450,tags:['BD','HQ','90 Days Refill'],ticket:'298'},
+    {name:'FB Boost Pack USA',price:300,tags:['USA Special','HQ Real','No Refill'],ticket:'Wa'},
+  ],
+  li:[
+    {name:'1K LinkedIn Any Account',price:2500,tags:['30 Days Refill'],ticket:'-'},
+    {name:'1K LinkedIn Profile Followers',price:3200,tags:['30 Days Refill'],ticket:'-'},
+    {name:'1K LinkedIn Company Page Followers',price:4500,tags:['30 Days Refill'],ticket:'-'},
+  ],
+  ig:[
+    {name:'1K IG Followers — Premium Lifetime',price:749,tags:['HQ/Real/Old','0% Drop','Lifetime Refill'],ticket:'178'},
+    {name:'1K IG Followers — BD Real',price:299,tags:['BD Real+Old','0–10% Drop','No Refill'],ticket:'2121'},
+    {name:'1K IG Followers — BD 30 Day',price:399,tags:['BD Real+Old','30 Days Refill'],ticket:'832'},
+    {name:'1K IG Followers — Regular',price:189,tags:['Bot+Real','10–20% Drop','No Refill'],ticket:'229'},
+    {name:'1K IG Followers — 30 Day Refill',price:329,tags:['Real+Old','30 Days Refill'],ticket:'252'},
+    {name:'1K IG Followers — 60 Day Refill',price:249,tags:['Real+Old','60 Days Refill'],ticket:'2531'},
+    {name:'1K IG Followers — 90 Day Refill',price:299,tags:['Real+Old','90 Days Refill'],ticket:'1073'},
+    {name:'1K IG Followers — 365 Day Refill',price:400,tags:['Real+Old','365 Days Refill'],ticket:'1827'},
+  ],
+  tt:[
+    {name:'1K TikTok Followers — 30 Day Refill',price:699,tags:['Real+HQ','0–5% Drop','30 Days Refill'],ticket:'1171'},
+    {name:'1K TikTok Followers — No Refill',price:599,tags:['Real+HQ','0–5% Drop','No Refill'],ticket:'2400'},
+    {name:'1K TikTok Followers — 365 Day',price:999,tags:['Real+HQ','365 Days Refill'],ticket:'1738'},
+    {name:'1K TikTok Live Views (15–30 min)',price:199,tags:['Live Stream','15–30 min'],ticket:'714'},
+    {name:'1K TikTok Live Views (60–120 min)',price:899,tags:['Live Stream','60–120 min'],ticket:'717'},
+    {name:'1K TikTok Views (5 min start)',price:10,tags:['Fast','Start: 5min'],ticket:'1353'},
+    {name:'1K TikTok Normal Views',price:5,tags:['Budget','Normal'],ticket:'2533'},
+    {name:'1K TikTok Likes — Real',price:99,tags:['Real','30 Days Refill'],ticket:'1637'},
+    {name:'1K TikTok Custom Comments',price:999,tags:['Real','Custom','30 Days Refill'],ticket:'-'},
+    {name:'1K TikTok Shares',price:99,tags:['Real','30 Days Refill'],ticket:'1522'},
+    {name:'1K TikTok Saves',price:49,tags:['Real','30 Days Refill'],ticket:'1054'},
+  ]
+};
+const PEMOJI = {yt:'▶️',fb:'📘',li:'💼',ig:'📸',tt:'🎵'};
+let curPlatform='yt', curOrderSvc=null, curUserData=null, curTicketId=null;
+
+function tagCls(t){
+  if(t.includes('Lifetime')||t.includes('Natural')||t.includes('Premium'))return'tag-p';
+  if(t.includes('Refill')||t.includes('HQ')||t.includes('Real'))return'tag-g';
+  if(t.includes('Drop')||t.includes('Bot')||t.includes('Budget'))return'tag-r';
+  if(t.includes('Days')||t.includes('Day')||t.includes('min'))return'tag-b';
+  return'tag-gold';
+}
+
+// ======= RENDER SERVICES =======
+function renderSvcs(p){
+  const c=document.getElementById('svc-container');
+  c.innerHTML=SVCS[p].map(s=>`
+    <div class="service-card">
+      <div class="svc-head">
+        <div class="svc-name">${PEMOJI[p]} ${s.name}</div>
+        <div class="svc-price">৳ ${s.price.toLocaleString()}</div>
+      </div>
+      <div class="svc-tags">
+        ${s.tags.map(t=>`<span class="tag ${tagCls(t)}">${t}</span>`).join('')}
+        ${s.ticket!=='-'?`<span class="tag tag-gold">Ticket: ${s.ticket}</span>`:''}
+      </div>
+      <button class="order-btn" onclick='openOrderModal(${JSON.stringify(s)})'>Order Now</button>
+    </div>`).join('');
+}
+function showPlatform(p,btn){
+  curPlatform=p;
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSvcs(p);
+}
+
+// ======= NAV =======
+function showPage(pg){
+  if((pg==='addfunds'||pg==='orders'||pg==='support'||pg==='profile')&&!auth.currentUser){
+    showNotif('Login Required','Please login first','red');
+    pg='login';
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('page-'+pg);
+  if(el) el.classList.add('active');
+  if(pg==='services') renderSvcs(curPlatform);
+  if(pg==='profile') loadProfile();
+  if(pg==='orders') loadOrders();
+  if(pg==='support') loadUserTickets();
+  if(pg==='admin'&&document.getElementById('admin-dash').style.display==='block') refreshAdminAll();
+  window.scrollTo(0,0);
+}
+// alias
+function sp(p){showPage(p);}
+function toggleMenu(){document.getElementById('mob-menu').classList.toggle('open')}
+function cm(){document.getElementById('mob-menu').classList.remove('open')}
+
+function setLoggedIn(userData){
+  curUserData=userData;
+  ['nav-addfunds','nav-orders','nav-support','nav-bal','nav-profile','nav-logout'].forEach(id=>document.getElementById(id).style.display='flex');
+  document.getElementById('nav-login').style.display='none';
+  document.getElementById('nav-addfunds').style.display='inline-block';
+  document.getElementById('nav-orders').style.display='inline-block';
+  document.getElementById('nav-support').style.display='inline-block';
+  document.getElementById('nav-profile').style.display='inline-block';
+  document.getElementById('nav-logout').style.display='inline-block';
+  document.getElementById('mob-bal').style.display='flex';
+  document.getElementById('m-addfunds').style.display='block';
+  document.getElementById('m-orders').style.display='block';
+  document.getElementById('m-support').style.display='block';
+  document.getElementById('m-profile').style.display='block';
+  document.getElementById('m-logout').style.display='block';
+  document.getElementById('m-login').style.display='none';
+  updateBalDisp(userData.balance||0);
+}
+function setLoggedOut(){
+  curUserData=null;
+  ['nav-addfunds','nav-orders','nav-support','nav-bal','nav-profile','nav-logout'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  document.getElementById('nav-login').style.display='inline-block';
+  document.getElementById('mob-bal').style.display='none';
+  document.getElementById('m-addfunds').style.display='none';
+  document.getElementById('m-orders').style.display='none';
+  document.getElementById('m-support').style.display='none';
+  document.getElementById('m-profile').style.display='none';
+  document.getElementById('m-logout').style.display='none';
+  document.getElementById('m-login').style.display='block';
+}
+function updateBalDisp(bal){
+  document.getElementById('nav-bal-amt').textContent=bal.toLocaleString();
+  document.getElementById('mob-bal-amt').textContent=bal.toLocaleString()+' BDT';
+  if(curUserData) curUserData.balance=bal;
+}
+
+// ======= AUTH =======
+async function doLogin(){
+  const username=document.getElementById('login-user').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-err');
+  const btn=document.getElementById('login-btn');
+  errEl.style.display='none';
+  if(!username||!pass){showErr(errEl,'Please fill all fields');return;}
+  btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Logging in...';
+  try{
+    const email=username+'@bdfollower.app';
+    await auth.signInWithEmailAndPassword(email,pass);
+    // onAuthStateChanged handles the rest
+  }catch(e){
+    btn.disabled=false; btn.textContent='Login';
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
+      showErr(errEl,'Wrong username or password. Please register first.');
+    } else {
+      showErr(errEl,'Error: '+e.message);
+    }
+  }
+}
+
+async function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const username=document.getElementById('reg-user').value.trim();
+  const phone=document.getElementById('reg-phone').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const pass2=document.getElementById('reg-pass2').value;
+  const errEl=document.getElementById('reg-err');
+  const btn=document.getElementById('reg-btn');
+  errEl.style.display='none';
+  if(!name||!username||!phone||!pass){showErr(errEl,'Please fill all fields');return;}
+  if(username.includes(' ')){showErr(errEl,'Username cannot contain spaces');return;}
+  if(pass.length<6){showErr(errEl,'Password must be at least 6 characters');return;}
+  if(pass!==pass2){showErr(errEl,'Passwords do not match');return;}
+  btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Creating...';
+  try{
+    // Check username taken
+    const snap=await db.collection('usernames').doc(username).get();
+    if(snap.exists){showErr(errEl,'Username already taken. Choose another.');btn.disabled=false;btn.textContent='Create Account';return;}
+    const email=username+'@bdfollower.app';
+    const cred=await auth.createUserWithEmailAndPassword(email,pass);
+    const uid=cred.user.uid;
+    const userData={name,username,phone,balance:0,totalSpent:0,cashback:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+    await db.collection('users').doc(uid).set(userData);
+    await db.collection('usernames').doc(username).set({uid});
+    // onAuthStateChanged handles rest
+  }catch(e){
+    btn.disabled=false; btn.textContent='Create Account';
+    if(e.code==='auth/email-already-in-use'){
+      showErr(errEl,'Username already taken. Choose another.');
+    } else {
+      showErr(errEl,'Error: '+e.message);
+    }
+  }
+}
+
+async function doLogout(){
+  await auth.signOut();
+  setLoggedOut();
+  showNotif('Logged out','See you again!','blue');
+  showPage('home');
+}
+
+// Auth state listener
+auth.onAuthStateChanged(async user=>{
+  document.getElementById('page-loader').style.display='none';
+  if(user){
+    try{
+      const doc=await db.collection('users').doc(user.uid).get();
+      if(doc.exists){
+        const data=doc.data();
+        setLoggedIn(data);
+        document.getElementById('login-btn').disabled=false;
+        document.getElementById('login-btn').textContent='Login';
+        document.getElementById('reg-btn').disabled=false;
+        document.getElementById('reg-btn').textContent='Create Account';
+        showNotif('Welcome!','Logged in as '+data.name,'green');
+        // If on login/register page, redirect to services
+        const ap=document.querySelector('.page.active');
+        if(ap&&(ap.id==='page-login'||ap.id==='page-register')){showPage('services');}
+      }
+    }catch(e){console.error(e);}
+  } else {
+    setLoggedOut();
+  }
+});
+
+// ======= PAYMENTS =======
+async function submitPayment(){
+  const name=document.getElementById('fund-name').value.trim();
+  const amount=parseFloat(document.getElementById('fund-amount').value);
+  const txn=document.getElementById('fund-txn').value.trim();
+  const errEl=document.getElementById('pay-err');
+  errEl.style.display='none';
+  if(!name||!amount||!txn){showErr(errEl,'Please fill all required fields');return;}
+  if(amount<=0){showErr(errEl,'Enter a valid amount');return;}
+  const btn=document.getElementById('pay-submit-btn');
+  btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Submitting...';
+  try{
+    const uid=auth.currentUser?auth.currentUser.uid:null;
+    await db.collection('payments').add({
+      userName:name, amount, txn, userId:uid,
+      status:'pending',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('fund-name').value='';
+    document.getElementById('fund-amount').value='';
+    document.getElementById('fund-txn').value='';
+    btn.disabled=false; btn.textContent='Submit Payment Request';
+    closeModal('bonus-modal');
+    showModal('pay-modal');
+    if(document.getElementById('admin-dash').style.display==='block') loadAdminPayments();
+  }catch(e){
+    btn.disabled=false; btn.textContent='Submit Payment Request';
+    showErr(errEl,'Error: '+e.message);
+  }
+}
+
+async function approvePayment(payId, amount, userId){
+  try{
+    // Add balance to user
+    if(userId){
+      const userRef=db.collection('users').doc(userId);
+      let addAmount=amount;
+      // 5% cashback for 1000+ BDT
+      if(amount>=1000){
+        const cb=Math.round(amount*0.05);
+        addAmount+=cb;
+        showNotif('Cashback!',`৳ ${cb} cashback added to user`,'green');
+      }
+      await userRef.update({
+        balance:firebase.firestore.FieldValue.increment(addAmount)
+      });
+      // Update live balance if it's the current user
+      if(auth.currentUser&&auth.currentUser.uid===userId){
+        const doc=await userRef.get();
+        updateBalDisp(doc.data().balance);
+      }
+    }
+    await db.collection('payments').doc(payId).delete();
+    showNotif('Approved!',`৳ ${amount} added to user balance`,'green');
+    loadAdminPayments();
+    loadAdminStats();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function rejectPayment(payId){
+  try{
+    await db.collection('payments').doc(payId).delete();
+    showNotif('Rejected','Payment rejected','red');
+    loadAdminPayments();
+    loadAdminStats();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+let bonusShown=false;
+function checkBonus(){
+  const amt=parseFloat(document.getElementById('fund-amount').value);
+  if(amt>=500&&!bonusShown){
+    bonusShown=true;
+    document.getElementById('bonus-amt').textContent=amt.toLocaleString();
+    setTimeout(()=>showModal('bonus-modal'),400);
+    setTimeout(()=>{bonusShown=false;},8000);
+  }
+}
+
+// ======= ORDERS =======
+async function openOrderModal(svc){
+  if(!auth.currentUser){showNotif('Login Required','Please login first','red');setTimeout(()=>showPage('login'),400);return;}
+  curOrderSvc=svc;
+  // Get fresh balance
+  const doc=await db.collection('users').doc(auth.currentUser.uid).get();
+  const bal=doc.data().balance||0;
+  updateBalDisp(bal);
+  document.getElementById('om-title').textContent=svc.name;
+  document.getElementById('om-desc').textContent=svc.tags?svc.tags.join(' · '):'';
+  document.getElementById('om-price').textContent='৳ '+svc.price.toLocaleString();
+  document.getElementById('om-bal').textContent='৳ '+bal.toLocaleString();
+  document.getElementById('order-url').value='';
+  showModal('order-modal');
+}
+
+async function placeOrder(){
+  if(!curOrderSvc||!auth.currentUser)return;
+  const url=document.getElementById('order-url').value.trim();
+  if(!url){showNotif('Error','Enter your profile/page URL','red');return;}
+  const btn=document.getElementById('place-order-btn');
+  btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Placing...';
+  try{
+    const uid=auth.currentUser.uid;
+    const userRef=db.collection('users').doc(uid);
+    const doc=await userRef.get();
+    const userData=doc.data();
+    const bal=userData.balance||0;
+    if(bal<curOrderSvc.price){
+      showNotif('Insufficient Balance','Add funds to continue','red');
+      closeModal('order-modal');
+      setTimeout(()=>showPage('addfunds'),400);
+      btn.disabled=false; btn.textContent='Place Order';
+      return;
+    }
+    const newBal=bal-curOrderSvc.price;
+    const newSpent=(userData.totalSpent||0)+curOrderSvc.price;
+    let cashbackAdd=0;
+    // Cashback on 1000 BDT total spend milestone
+    if(newSpent>=1000&&(userData.totalSpent||0)<1000){
+      cashbackAdd=Math.round(newSpent*0.05);
+    }
+    await userRef.update({
+      balance:newBal+cashbackAdd,
+      totalSpent:newSpent,
+      cashback:firebase.firestore.FieldValue.increment(cashbackAdd)
+    });
+    // Create order
+    const orderId='ORD'+Date.now();
+    await db.collection('orders').doc(orderId).set({
+      orderId, userId:uid, userName:userData.name,
+      service:curOrderSvc.name, price:curOrderSvc.price,
+      url, status:'Processing',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    updateBalDisp(newBal+cashbackAdd);
+    if(cashbackAdd>0) setTimeout(()=>showNotif('🎉 Cashback!',`৳ ${cashbackAdd} cashback added!`,'green'),600);
+    closeModal('order-modal');
+    setTimeout(()=>showModal('order-ok-modal'),200);
+    btn.disabled=false; btn.textContent='Place Order';
+    if(document.getElementById('admin-dash').style.display==='block'){loadAdminOrders();loadAdminStats();}
+  }catch(e){
+    btn.disabled=false; btn.textContent='Place Order';
+    showNotif('Error',e.message,'red');
+  }
+}
+
+async function loadOrders(){
+  if(!auth.currentUser){document.getElementById('orders-list').innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Please login to see orders.</div>';return;}
+  const list=document.getElementById('orders-list');
+  list.innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Loading...</div>';
+  try{
+    const snap=await db.collection('orders').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').get();
+    if(snap.empty){list.innerHTML='<div class="card" style="text-align:center;color:var(--text2);padding:2rem">No orders yet. <a onclick="showPage(\'services\')" style="color:var(--accent2);cursor:pointer">Browse services →</a></div>';return;}
+    list.innerHTML=snap.docs.map(d=>{
+      const o=d.data();
+      return`<div class="order-card">
+        <div class="order-icon">📦</div>
+        <div class="order-info"><div class="order-svc">${o.service}</div><div class="order-meta">${o.orderId} · <a href="${o.url}" target="_blank" style="color:var(--blue)">${o.url.slice(0,30)}...</a></div></div>
+        <span class="pill ${o.status==='Completed'?'pill-completed':o.status==='Cancelled'?'pill-pending':'pill-processing'}">${o.status}</span>
+        <div class="order-amt">৳ ${o.price.toLocaleString()}</div>
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<div style="color:var(--red)">Error loading orders.</div>';}
+}
+
+// ======= PROFILE =======
+async function loadProfile(){
+  if(!auth.currentUser){showPage('login');return;}
+  try{
+    const doc=await db.collection('users').doc(auth.currentUser.uid).get();
+    const u=doc.data();
+    document.getElementById('pf-avatar').textContent=u.name[0].toUpperCase();
+    document.getElementById('pf-name').textContent=u.name;
+    document.getElementById('pf-phone').textContent=u.phone;
+    document.getElementById('pf-user').textContent='@'+u.username;
+    document.getElementById('pf-balance').textContent='৳ '+(u.balance||0).toLocaleString();
+    document.getElementById('pf-spent').textContent=(u.totalSpent||0).toLocaleString();
+    document.getElementById('pf-cashback').textContent=(u.cashback||0).toLocaleString();
+    // Orders
+    const oSnap=await db.collection('orders').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').limit(5).get();
+    document.getElementById('pf-orders').textContent=oSnap.size;
+    const ol=document.getElementById('pf-orders-list');
+    if(oSnap.empty){ol.innerHTML='<div style="color:var(--text2);text-align:center;padding:1.5rem">No orders yet.</div>';return;}
+    ol.innerHTML=oSnap.docs.map(d=>{
+      const o=d.data();
+      return`<div class="order-card">
+        <div class="order-icon">📦</div>
+        <div class="order-info"><div class="order-svc">${o.service}</div><div class="order-meta">${o.orderId}</div></div>
+        <span class="pill ${o.status==='Completed'?'pill-completed':'pill-processing'}">${o.status}</span>
+        <div class="order-amt">৳ ${o.price.toLocaleString()}</div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+// ======= SUPPORT =======
+async function submitTicket(){
+  const subj=document.getElementById('ticket-subj').value.trim();
+  const msg=document.getElementById('ticket-msg').value.trim();
+  if(!subj||!msg){showNotif('Error','Please fill all fields','red');return;}
+  if(!auth.currentUser){showNotif('Login Required','Please login first','red');return;}
+  try{
+    const doc=await db.collection('users').doc(auth.currentUser.uid).get();
+    const u=doc.data();
+    await db.collection('tickets').add({
+      userId:auth.currentUser.uid, userName:u.name,
+      subject:subj, message:msg, status:'open',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('ticket-subj').value='';
+    document.getElementById('ticket-msg').value='';
+    showNotif('Ticket Submitted!','We\'ll reply soon','green');
+    loadUserTickets();
+    if(document.getElementById('admin-dash').style.display==='block') loadAdminInbox();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function loadUserTickets(){
+  if(!auth.currentUser)return;
+  const el=document.getElementById('user-tickets');
+  try{
+    const snap=await db.collection('tickets').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').get();
+    if(snap.empty){el.innerHTML='<div style="color:var(--text3);font-size:.84rem">No tickets yet.</div>';return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const t=d.data();
+      return`<div class="ticket-item ${t.status==='open'?'unread':''}">
+        <div class="ticket-head"><span style="font-weight:500;font-size:.875rem">${t.subject}</span><span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.status==='open'?'Open':'Closed'}</span></div>
+        <div style="font-size:.8rem;color:var(--text2)">${t.message.slice(0,60)}...</div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);}
+}
+
+// ======= ADMIN =======
+const ADMIN_PASS='TANBIR123tanbir';
+
+function doAdminLogin(){
+  const pass=document.getElementById('admin-pass').value;
+  const errEl=document.getElementById('admin-err');
+  if(pass===ADMIN_PASS){
+    errEl.style.display='none';
+    document.getElementById('admin-login-sc').style.display='none';
+    document.getElementById('admin-dash').style.display='block';
+    refreshAdminAll();
+  } else {
+    errEl.style.display='block';
+    document.getElementById('admin-pass').value='';
+  }
+}
+
+function adminLogout(){
+  document.getElementById('admin-login-sc').style.display='flex';
+  document.getElementById('admin-dash').style.display='none';
+  document.getElementById('admin-pass').value='';
+  showPage('home');
+}
+
+function sd(sec,btn){
+  document.querySelectorAll('.dash-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.dnav').forEach(b=>b.classList.remove('active'));
+  document.getElementById('dash-'+sec).classList.add('active');
+  btn.classList.add('active');
+}
+
+async function refreshAdminAll(){
+  loadAdminPayments();
+  loadAdminOrders();
+  loadAdminInbox();
+  loadAdminUsers();
+  loadAdminStats();
+}
+
+async function loadAdminStats(){
+  try{
+    const [paySnap,ordSnap,usrSnap]=await Promise.all([
+      db.collection('payments').get(),
+      db.collection('orders').get(),
+      db.collection('users').get()
+    ]);
+    document.getElementById('st-pp').textContent=paySnap.size;
+    document.getElementById('st-ord').textContent=ordSnap.size;
+    document.getElementById('st-usr').textContent=usrSnap.size;
+    const rev=ordSnap.docs.reduce((s,d)=>s+(d.data().price||0),0);
+    document.getElementById('st-rev').textContent='৳ '+rev.toLocaleString();
+  }catch(e){}
+}
+
+async function loadAdminPayments(){
+  const tb=document.getElementById('admin-pay-tb');
+  try{
+    const snap=await db.collection('payments').orderBy('createdAt','desc').get();
+    if(snap.empty){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">No pending payments ✓</td></tr>';return;}
+    tb.innerHTML=snap.docs.map(d=>{
+      const p=d.data(); const pid=d.id;
+      const t=p.createdAt?new Date(p.createdAt.seconds*1000).toLocaleString():'Just now';
+      return`<tr>
+        <td><strong>${p.userName}</strong></td>
+        <td style="color:var(--accent3);font-weight:500">৳ ${p.amount.toLocaleString()}</td>
+        <td style="font-family:monospace;font-size:.77rem">${p.txn}</td>
+        <td style="color:var(--text3);font-size:.77rem">${t}</td>
+        <td class="td-acts">
+          <button class="act-btn app-btn" onclick="approvePayment('${pid}',${p.amount},'${p.userId||''}')">✓ Approve</button>
+          <button class="act-btn rej-btn" onclick="rejectPayment('${pid}')">✗ Reject</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="5" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
+}
+
+async function loadAdminOrders(){
+  const tb=document.getElementById('admin-ord-tb');
+  try{
+    const snap=await db.collection('orders').orderBy('createdAt','desc').get();
+    if(snap.empty){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">No orders yet</td></tr>';return;}
+    tb.innerHTML=snap.docs.map(d=>{
+      const o=d.data(); const oid=d.id;
+      const sc=o.status==='Completed'?'pill-completed':o.status==='Cancelled'?'pill-pending':'pill-processing';
+      return`<tr>
+        <td style="font-family:monospace;font-size:.77rem">${o.orderId||oid}</td>
+        <td>${o.userName}</td>
+        <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.service}</td>
+        <td style="color:var(--accent3)">৳ ${o.price.toLocaleString()}</td>
+        <td><span class="pill ${sc}">${o.status}</span></td>
+        <td>
+          <select class="status-select" onchange="updateOrderStatus('${oid}',this.value)">
+            <option ${o.status==='Processing'?'selected':''}>Processing</option>
+            <option ${o.status==='Completed'?'selected':''}>Completed</option>
+            <option ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+            <option ${o.status==='Pending'?'selected':''}>Pending</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
+}
+
+async function updateOrderStatus(orderId, newStatus){
+  try{
+    await db.collection('orders').doc(orderId).update({status:newStatus});
+    showNotif('Updated!','Order status changed to '+newStatus,'green');
+    loadAdminOrders();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function loadAdminInbox(){
+  const el=document.getElementById('admin-ticket-list');
+  try{
+    const snap=await db.collection('tickets').orderBy('createdAt','desc').get();
+    if(snap.empty){el.innerHTML='<div style="color:var(--text3);font-size:.84rem">No tickets yet</div>';return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const t=d.data(); const tid=d.id;
+      const sc=t.status==='open'?'pill-open':'pill-closed';
+      return`<div class="ticket-item ${t.status==='open'?'unread':''}" onclick="openAdminTicket('${tid}')">
+        <div class="ticket-head"><span style="font-weight:500;font-size:.875rem">${t.subject}</span><span class="pill ${sc}">${t.status==='open'?'Open':'Closed'}</span></div>
+        <div style="font-size:.75rem;color:var(--text3);margin-bottom:.25rem">${t.userName}</div>
+        <div style="font-size:.8rem;color:var(--text2)">${t.message.slice(0,50)}...</div>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--red);font-size:.84rem">Error loading</div>';}
+}
+
+async function openAdminTicket(tid){
+  curTicketId=tid;
+  try{
+    const doc=await db.collection('tickets').doc(tid).get();
+    const t=doc.data();
+    await db.collection('tickets').doc(tid).update({status:'closed'});
+    const panel=document.getElementById('reply-panel');
+    panel.style.display='block';
+    document.getElementById('reply-subj').textContent=t.subject;
+    document.getElementById('reply-from').textContent='From: '+t.userName;
+    document.getElementById('reply-msg-txt').textContent=t.message;
+    document.getElementById('admin-reply').value='';
+    loadAdminInbox();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function sendReply(){
+  const r=document.getElementById('admin-reply').value.trim();
+  if(!r){showNotif('Error','Type a reply first','red');return;}
+  try{
+    if(curTicketId){
+      await db.collection('tickets').doc(curTicketId).update({adminReply:r,status:'closed'});
+    }
+    document.getElementById('admin-reply').value='';
+    document.getElementById('reply-panel').style.display='none';
+    showNotif('Reply Sent!','Reply sent to user','green');
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function loadAdminUsers(){
+  const tb=document.getElementById('admin-usr-tb');
+  try{
+    const snap=await db.collection('users').orderBy('createdAt','desc').get();
+    if(snap.empty){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">No users yet</td></tr>';return;}
+    tb.innerHTML=snap.docs.map(d=>{
+      const u=d.data();
+      return`<tr>
+        <td>${u.name}</td>
+        <td style="font-family:monospace;font-size:.78rem">@${u.username}</td>
+        <td>${u.phone}</td>
+        <td style="color:var(--accent3)">৳ ${(u.balance||0).toLocaleString()}</td>
+        <td>৳ ${(u.totalSpent||0).toLocaleString()}</td>
+        <td>${u.ordersCount||'—'}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
+}
+
+// ======= UTILS =======
+function showModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+let notifT;
+function showNotif(title,body,type){
+  clearTimeout(notifT);
+  document.getElementById('notif-title').textContent=title;
+  document.getElementById('notif-body').textContent=body;
+  document.getElementById('notif-dot').style.background=type==='red'?'var(--red)':type==='green'?'var(--green)':type==='blue'?'var(--blue)':'var(--accent2)';
+  document.getElementById('notif').classList.add('show');
+  notifT=setTimeout(()=>document.getElementById('notif').classList.remove('show'),4000);
+}
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');});
+});
+
+// Init
+renderSvcs('yt');
+</script>
+</body>
+</html>
