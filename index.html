@@ -23,7 +23,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// Keep user logged in across page refresh
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 </script>
 
@@ -469,7 +468,13 @@ tr:hover td{background:rgba(255,255,255,.015)}
   <div id="admin-dash" style="display:none">
     <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
       <div><h1>Admin Dashboard</h1><p>BD.follower Control Panel</p></div>
-      <button class="btn btn-outline" onclick="adminLogout()" style="font-size:.78rem">🚪 Logout</button>
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div style="position:relative;cursor:pointer" onclick="showDash('orders',document.querySelector('.dnav:nth-child(2)'));clearAdminNotifs()">
+          <div style="font-size:1.4rem">🔔</div>
+          <div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif" id="notif-badge">0</div>
+        </div>
+        <button class="btn btn-outline" onclick="adminLogout()" style="font-size:.78rem">🚪 Logout</button>
+      </div>
     </div>
     <div class="dash-layout">
       <div class="dash-sidebar">
@@ -584,6 +589,21 @@ tr:hover td{background:rgba(255,255,255,.015)}
   </div>
 </div>
 
+<!-- Admin New Order Toast -->
+<div id="admin-order-toast" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:500;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;padding:1rem 1.25rem;min-width:260px;box-shadow:0 8px 30px rgba(108,92,231,.5);animation:slideUp .4s ease">
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <div style="font-size:1.5rem">📦</div>
+    <div>
+      <div style="font-weight:600;font-size:.9rem;color:#fff" id="toast-title">New Order!</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.85)" id="toast-body"></div>
+    </div>
+    <div onclick="document.getElementById('admin-order-toast').style.display='none'" style="cursor:pointer;color:rgba(255,255,255,.7);font-size:1.2rem;margin-left:auto">×</div>
+  </div>
+</div>
+<style>
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+
 <script>
 // ======= SERVICES DATA =======
 const SVCS = {
@@ -672,10 +692,21 @@ function showPlatform(p,btn){
 }
 
 // ======= NAV =======
-function showPage(pg){
-  if((pg==='addfunds'||pg==='orders'||pg==='support'||pg==='profile')&&!auth.currentUser){
+function showPage(pg, skipAuthCheck){
+  // If auth not loaded yet and user tries protected page, save it and restore after auth
+  const protectedPages=['addfunds','orders','support','profile'];
+  if(protectedPages.includes(pg) && !auth.currentUser && !skipAuthCheck){
+    if(!_authLoaded){
+      // Auth still loading - save page and show after auth
+      _pendingPage = pg;
+      return;
+    }
     showNotif('Login Required','Please login first','red');
     pg='login';
+  }
+  // Save current page to localStorage (except login/register/admin)
+  if(!['login','register','admin'].includes(pg)){
+    localStorage.setItem('lastPage', pg);
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('page-'+pg);
@@ -796,12 +827,15 @@ async function doLogout(){
   showPage('home');
 }
 
-// Hide loader after 4s max (in case auth is slow)
-setTimeout(()=>{ const l=document.getElementById('page-loader'); if(l) l.style.display='none'; },4000);
-// Auth state listener - persists on refresh
-let _firstLoad = true;
+// Track auth state
+let _authLoaded = false;
+let _pendingPage = null;
+// Hide loader max 5s
+setTimeout(()=>{ document.getElementById('page-loader').style.display='none'; },5000);
+
 auth.onAuthStateChanged(async user=>{
   document.getElementById('page-loader').style.display='none';
+  _authLoaded = true;
   if(user){
     try{
       const doc=await db.collection('users').doc(user.uid).get();
@@ -814,46 +848,96 @@ auth.onAuthStateChanged(async user=>{
         document.getElementById('reg-btn').textContent='Create Account';
         // Start real-time listeners
         startRealtimeListeners(user.uid);
+        // Restore last page on refresh, or go to pending page
         const ap=document.querySelector('.page.active');
-        if(!_firstLoad||(ap&&(ap.id==='page-login'||ap.id==='page-register'))){
+        const isOnAuthPage = ap&&(ap.id==='page-login'||ap.id==='page-register');
+        if(_pendingPage){
+          const pg=_pendingPage; _pendingPage=null;
+          showPage(pg, true);
+        } else if(isOnAuthPage){
           showNotif('Welcome!','Logged in as '+data.name,'green');
-          showPage('services');
+          const lastPg=localStorage.getItem('lastPage')||'services';
+          showPage(lastPg, true);
+        } else {
+          // Page refresh - restore same page silently
+          const lastPg=localStorage.getItem('lastPage')||'services';
+          showPage(lastPg, true);
         }
-        _firstLoad=false;
       }
     }catch(e){console.error(e);}
   } else {
-    if(!_firstLoad) setLoggedOut();
-    _firstLoad=false;
-    document.getElementById('page-loader').style.display='none';
+    // User not logged in
+    setLoggedOut();
+    const ap=document.querySelector('.page.active');
+    if(ap&&!['page-home','page-services','page-login','page-register'].includes(ap.id)){
+      showPage('home');
+    }
   }
 });
 
 // ======= REAL-TIME LISTENERS =======
 function startRealtimeListeners(uid){
-  // Real-time balance update for current user
+  // Real-time balance update
   db.collection('users').doc(uid).onSnapshot(doc=>{
     if(doc.exists){
-      const data=doc.data();
-      updateBalDisp(data.balance||0);
-      // Update profile page if open
-      if(document.getElementById('page-profile').classList.contains('active')) loadProfile();
+      const bal=doc.data().balance||0;
+      updateBalDisp(bal);
+      const pfbal=document.getElementById('pf-balance');
+      if(pfbal) pfbal.textContent='৳ '+bal.toLocaleString();
     }
   });
-  // Real-time orders update
+  // Real-time orders for user
   db.collection('orders').where('userId','==',uid).onSnapshot(()=>{
     if(document.getElementById('page-orders').classList.contains('active')) loadOrders();
     if(document.getElementById('page-profile').classList.contains('active')) loadProfile();
   });
-  // Real-time admin panel updates
-  db.collection('payments').onSnapshot(()=>{
-    const adash=document.getElementById('admin-dash');
-    if(adash&&adash.style.display==='block'){ loadAdminPayments(); loadAdminStats(); }
+  // Real-time admin updates
+  db.collection('payments').onSnapshot(snap=>{
+    const ad=document.getElementById('admin-dash');
+    if(ad&&ad.style.display==='block'){ loadAdminPayments(); loadAdminStats(); }
+    // Notification for new payment
+    snap.docChanges().forEach(change=>{
+      if(change.type==='added'){
+        const p=change.doc.data();
+        showAdminToast('💳 New Payment!', p.userName+' — ৳'+p.amount);
+        bumpNotifBadge();
+      }
+    });
   });
-  db.collection('orders').onSnapshot(()=>{
-    const adash=document.getElementById('admin-dash');
-    if(adash&&adash.style.display==='block'){ loadAdminOrders(); loadAdminStats(); }
+  let _firstOrderSnap=true;
+  db.collection('orders').onSnapshot(snap=>{
+    const ad=document.getElementById('admin-dash');
+    if(ad&&ad.style.display==='block'){ loadAdminOrders(); loadAdminStats(); }
+    // Notification for new order (skip initial load)
+    if(_firstOrderSnap){ _firstOrderSnap=false; return; }
+    snap.docChanges().forEach(change=>{
+      if(change.type==='added'){
+        const o=change.doc.data();
+        showAdminToast('📦 New Order!', o.userName+' — '+o.service.slice(0,30)+'...');
+        bumpNotifBadge();
+      }
+    });
   });
+}
+
+let _notifCount=0;
+function bumpNotifBadge(){
+  _notifCount++;
+  const badge=document.getElementById('notif-badge');
+  if(badge){ badge.style.display='flex'; badge.textContent=_notifCount; }
+}
+function clearAdminNotifs(){
+  _notifCount=0;
+  const badge=document.getElementById('notif-badge');
+  if(badge) badge.style.display='none';
+}
+function showAdminToast(title, body){
+  const toast=document.getElementById('admin-order-toast');
+  if(!toast) return;
+  document.getElementById('toast-title').textContent=title;
+  document.getElementById('toast-body').textContent=body;
+  toast.style.display='block';
+  setTimeout(()=>{ toast.style.display='none'; }, 6000);
 }
 
 // ======= PAYMENTS =======
