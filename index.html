@@ -705,7 +705,13 @@ function showPage(pg){
   if(pg==='profile') loadProfile();
   if(pg==='orders') loadOrders();
   if(pg==='support') loadUserTickets();
-  if(pg==='admin'&&document.getElementById('admin-dash').style.display==='block') refreshAdminAll();
+  if(pg==='admin'){
+    if(sessionStorage.getItem('adminLoggedIn')==='true'){
+      document.getElementById('admin-login-sc').style.display='none';
+      document.getElementById('admin-dash').style.display='block';
+      refreshAdminAll();
+    }
+  }
   window.scrollTo(0,0);
 }
 function sp(p){showPage(p);}
@@ -1156,6 +1162,7 @@ function doAdminLogin(){
   const errEl=document.getElementById('admin-err');
   if(pass===ADMIN_PASS){
     errEl.style.display='none';
+    sessionStorage.setItem('adminLoggedIn','true');
     document.getElementById('admin-login-sc').style.display='none';
     document.getElementById('admin-dash').style.display='block';
     refreshAdminAll();
@@ -1166,6 +1173,7 @@ function doAdminLogin(){
 }
 
 function adminLogout(){
+  sessionStorage.removeItem('adminLoggedIn');
   document.getElementById('admin-login-sc').style.display='flex';
   document.getElementById('admin-dash').style.display='none';
   document.getElementById('admin-pass').value='';
@@ -1343,6 +1351,14 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 
 // Init
 renderSvcs('yt');
+
+// Restore admin session if was logged in
+if(sessionStorage.getItem('adminLoggedIn')==='true'){
+  document.getElementById('admin-login-sc').style.display='none';
+  document.getElementById('admin-dash').style.display='block';
+  // Wait for page to load then refresh admin data
+  setTimeout(()=>refreshAdminAll(), 1500);
+}
 </script>
 </body>
 </html>
