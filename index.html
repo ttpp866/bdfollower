@@ -23,6 +23,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 </script>
 
 <style>
@@ -794,7 +795,10 @@ async function doLogout(){
   showPage('home');
 }
 
-// Auth state listener
+// Hide loader after max 3s regardless
+setTimeout(()=>{ const l=document.getElementById('page-loader'); if(l) l.style.display='none'; },3000);
+// Auth state listener - persists across refresh
+let isFirstAuthCheck = true;
 auth.onAuthStateChanged(async user=>{
   document.getElementById('page-loader').style.display='none';
   if(user){
@@ -807,16 +811,53 @@ auth.onAuthStateChanged(async user=>{
         document.getElementById('login-btn').textContent='Login';
         document.getElementById('reg-btn').disabled=false;
         document.getElementById('reg-btn').textContent='Create Account';
-        showNotif('Welcome!','Logged in as '+data.name,'green');
-        // If on login/register page, redirect to services
         const ap=document.querySelector('.page.active');
-        if(ap&&(ap.id==='page-login'||ap.id==='page-register')){showPage('services');}
+        // Always start real-time listeners
+        startRealtimeListeners(user.uid);
+        if(ap&&(ap.id==='page-login'||ap.id==='page-register')){
+          showNotif('Welcome!','Logged in as '+data.name,'green');
+          showPage('services');
+        }
+        isFirstAuthCheck=false;
       }
     }catch(e){console.error(e);}
   } else {
     setLoggedOut();
+    isFirstAuthCheck=false;
   }
 });
+
+// ======= REAL-TIME LISTENERS =======
+let paymentListener=null, ordersListener=null, balanceListener=null;
+
+function startRealtimeListeners(uid){
+  // Real-time balance update
+  if(balanceListener) balanceListener();
+  balanceListener = db.collection('users').doc(uid).onSnapshot(doc=>{
+    if(doc.exists){
+      const data=doc.data();
+      updateBalDisp(data.balance||0);
+      if(document.getElementById('page-profile').classList.contains('active')) loadProfile();
+    }
+  });
+  // Real-time orders for user
+  if(ordersListener) ordersListener();
+  ordersListener = db.collection('orders').where('userId','==',uid).onSnapshot(snap=>{
+    if(document.getElementById('page-orders').classList.contains('active')) loadOrders();
+    if(document.getElementById('page-profile').classList.contains('active')) loadProfile();
+  });
+  // Real-time admin updates
+  db.collection('payments').onSnapshot(()=>{
+    if(document.getElementById('admin-dash')&&document.getElementById('admin-dash').style.display==='block'){
+      loadAdminPayments(); loadAdminStats();
+    }
+  });
+  db.collection('orders').onSnapshot(()=>{
+    if(document.getElementById('admin-dash')&&document.getElementById('admin-dash').style.display==='block'){
+      loadAdminOrders(); loadAdminStats();
+    }
+  });
+}
 
 // ======= PAYMENTS =======
 async function submitPayment(){
@@ -969,7 +1010,7 @@ async function loadOrders(){
   const list=document.getElementById('orders-list');
   list.innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Loading...</div>';
   try{
-    const snap=await db.collection('orders').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').get();
+    const snap=await db.collection('orders').where('userId','==',auth.currentUser.uid).get();
     if(snap.empty){list.innerHTML='<div class="card" style="text-align:center;color:var(--text2);padding:2rem">No orders yet. <a onclick="showPage(\'services\')" style="color:var(--accent2);cursor:pointer">Browse services →</a></div>';return;}
     list.innerHTML=snap.docs.map(d=>{
       const o=d.data();
@@ -980,7 +1021,7 @@ async function loadOrders(){
         <div class="order-amt">৳ ${o.price.toLocaleString()}</div>
       </div>`;
     }).join('');
-  }catch(e){list.innerHTML='<div style="color:var(--red)">Error loading orders.</div>';}
+  }catch(e){console.error('Orders error:',e);list.innerHTML='<div style="color:var(--red);padding:1rem">Error: '+e.message+'</div>';}
 }
 
 // ======= PROFILE =======
@@ -997,7 +1038,7 @@ async function loadProfile(){
     document.getElementById('pf-spent').textContent=(u.totalSpent||0).toLocaleString();
     document.getElementById('pf-cashback').textContent=(u.cashback||0).toLocaleString();
     // Orders
-    const oSnap=await db.collection('orders').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').limit(5).get();
+    const oSnap=await db.collection('orders').where('userId','==',auth.currentUser.uid).get();
     document.getElementById('pf-orders').textContent=oSnap.size;
     const ol=document.getElementById('pf-orders-list');
     if(oSnap.empty){ol.innerHTML='<div style="color:var(--text2);text-align:center;padding:1.5rem">No orders yet.</div>';return;}
@@ -1039,7 +1080,7 @@ async function loadUserTickets(){
   if(!auth.currentUser)return;
   const el=document.getElementById('user-tickets');
   try{
-    const snap=await db.collection('tickets').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').get();
+    const snap=await db.collection('tickets').where('userId','==',auth.currentUser.uid).get();
     if(snap.empty){el.innerHTML='<div style="color:var(--text3);font-size:.84rem">No tickets yet.</div>';return;}
     el.innerHTML=snap.docs.map(d=>{
       const t=d.data();
