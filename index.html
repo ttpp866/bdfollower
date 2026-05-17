@@ -822,9 +822,15 @@ async function doLogout(){
 // Auth state listener
 // Auth state - persists on refresh
 let authReady=false;
+// Safety: hide loader after 4s max
+setTimeout(()=>{
+  document.getElementById('page-loader').style.display='none';
+  if(!authReady){ authReady=true; showPage('home'); }
+},4000);
+
 auth.onAuthStateChanged(async user=>{
-  if(user){
-    try{
+  try{
+    if(user){
       const doc=await db.collection('users').doc(user.uid).get();
       if(doc.exists){
         const data=doc.data();
@@ -840,15 +846,21 @@ auth.onAuthStateChanged(async user=>{
           showNotif('Welcome!','Logged in as '+data.name,'green');
           showPage('services');
         } else if(!authReady){
-          // Refresh - restore last page
           const saved=localStorage.getItem('currentPage')||'services';
           showPage(saved);
         }
+      } else {
+        setLoggedOut();
+        if(!authReady) showPage('home');
       }
-    }catch(e){console.error(e);}
-  } else {
+    } else {
+      setLoggedOut();
+      if(!authReady) showPage('home');
+    }
+  }catch(e){
+    console.error('Auth error:',e);
     setLoggedOut();
-    if(!authReady) showPage('home');
+    showPage('home');
   }
   authReady=true;
   document.getElementById('page-loader').style.display='none';
