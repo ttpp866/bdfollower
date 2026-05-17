@@ -817,6 +817,8 @@ async function doLogout(){
 }
 
 // ======= AUTH STATE =======
+let authReady = false;
+
 auth.onAuthStateChanged(async user=>{
   if(user){
     try{
@@ -829,18 +831,21 @@ auth.onAuthStateChanged(async user=>{
         document.getElementById('reg-btn').disabled=false;
         document.getElementById('reg-btn').textContent='Create Account';
         startRealtimeListeners(user.uid);
+        // First load (refresh) → go to services
+        // Coming from login page → show welcome + go to services
         const ap=document.querySelector('.page.active');
         const onAuthPage=ap&&(ap.id==='page-login'||ap.id==='page-register');
-        if(onAuthPage){
-          showNotif('Welcome!','Logged in as '+data.name,'green');
+        if(!authReady || onAuthPage){
+          if(onAuthPage) showNotif('Welcome!','Logged in as '+data.name,'green');
           showPage('services');
         }
       }
     }catch(e){console.error(e);}
   } else {
     setLoggedOut();
+    if(!authReady) showPage('home');
   }
-  // Hide loader after auth resolved
+  authReady = true;
   document.getElementById('page-loader').style.display='none';
 });
 
