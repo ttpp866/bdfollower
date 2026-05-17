@@ -1081,7 +1081,7 @@ async function loadOrders(){
   try{
     const snap=await db.collection('orders').where('userId','==',auth.currentUser.uid).get();
     if(snap.empty){
-      list.innerHTML='<div class="card" style="text-align:center;color:var(--text2);padding:2rem">No orders yet. <a onclick="showPage('services')" style="color:var(--accent2);cursor:pointer">Browse services →</a></div>';
+      list.innerHTML='<div class="card" style="text-align:center;color:var(--text2);padding:2rem">No orders yet. <a onclick="showPage(\'services\')" style="color:var(--accent2);cursor:pointer">Browse services &#8594;</a></div>';
       return;
     }
     const docs=snap.docs.sort((a,b)=>{
