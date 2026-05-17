@@ -1060,23 +1060,42 @@ async function placeOrder(){
 }
 
 async function loadOrders(){
-  if(!auth.currentUser){document.getElementById('orders-list').innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Please login to see orders.</div>';return;}
+  if(!auth.currentUser){
+    document.getElementById('orders-list').innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Please login to see orders.</div>';
+    return;
+  }
   const list=document.getElementById('orders-list');
   list.innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Loading...</div>';
   try{
-    const snap=await db.collection('orders').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').get();
-    if(snap.empty){list.innerHTML='<div class="card" style="text-align:center;color:var(--text2);padding:2rem">No orders yet. <a onclick="showPage(\'services\')" style="color:var(--accent2);cursor:pointer">Browse services →</a></div>';return;}
-    list.innerHTML=snap.docs.map(d=>{
+    const snap=await db.collection('orders').where('userId','==',auth.currentUser.uid).get();
+    if(snap.empty){
+      list.innerHTML='<div class="card" style="text-align:center;color:var(--text2);padding:2rem">No orders yet. <a onclick="showPage('services')" style="color:var(--accent2);cursor:pointer">Browse services →</a></div>';
+      return;
+    }
+    const docs=snap.docs.sort((a,b)=>{
+      const at=a.data().createdAt, bt=b.data().createdAt;
+      if(!at||!bt) return 0;
+      return bt.seconds-at.seconds;
+    });
+    list.innerHTML=docs.map(d=>{
       const o=d.data();
+      const sc=o.status==='Completed'?'pill-completed':o.status==='Cancelled'?'pill-pending':'pill-processing';
       return`<div class="order-card">
         <div class="order-icon">📦</div>
-        <div class="order-info"><div class="order-svc">${o.service}</div><div class="order-meta">${o.orderId} · <a href="${o.url}" target="_blank" style="color:var(--blue)">${o.url.slice(0,30)}...</a></div></div>
-        <span class="pill ${o.status==='Completed'?'pill-completed':o.status==='Cancelled'?'pill-pending':'pill-processing'}">${o.status}</span>
-        <div class="order-amt">৳ ${o.price.toLocaleString()}</div>
+        <div class="order-info">
+          <div class="order-svc">${o.service}</div>
+          <div class="order-meta">${o.orderId||'—'}</div>
+        </div>
+        <span class="pill ${sc}">${o.status||'Processing'}</span>
+        <div class="order-amt">৳ ${(o.price||0).toLocaleString()}</div>
       </div>`;
     }).join('');
-  }catch(e){list.innerHTML='<div style="color:var(--red)">Error loading orders.</div>';}
+  }catch(e){
+    console.error('Orders error:',e);
+    list.innerHTML='<div style="color:var(--red);padding:1rem;text-align:center">'+e.message+'<br><small>Firebase এ index বানাতে হবে</small></div>';
+  }
 }
+
 
 // ======= PROFILE =======
 async function loadProfile(){
