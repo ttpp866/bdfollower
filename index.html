@@ -681,8 +681,8 @@ function showPage(pg){
     showNotif('Access Denied','Admin only! Use /#admin URL.','red');
     return;
   }
-  // Save page for refresh restore (not home/login/register/admin)
-  if(!['login','register','admin','home'].includes(pg)){
+  // Save page for refresh restore
+  if(!['login','register','home'].includes(pg)){
     localStorage.setItem('currentPage', pg);
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -847,7 +847,18 @@ auth.onAuthStateChanged(async user=>{
           showPage('services');
         } else if(!authReady){
           const saved=localStorage.getItem('currentPage')||'services';
-          showPage(saved);
+          if(saved==='admin'){
+            // Restore admin page
+            document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+            document.getElementById('page-admin').classList.add('active');
+            if(sessionStorage.getItem('adminLoggedIn')==='true'){
+              document.getElementById('admin-login-sc').style.display='none';
+              document.getElementById('admin-dash').style.display='block';
+              setTimeout(()=>refreshAdminAll(),500);
+            }
+          } else {
+            showPage(saved);
+          }
         }
       } else {
         setLoggedOut();
@@ -868,22 +879,40 @@ auth.onAuthStateChanged(async user=>{
 
 // ======= REAL-TIME LISTENERS =======
 function startRealtimeListeners(uid){
+  // 1. User balance real-time
   db.collection('users').doc(uid).onSnapshot(doc=>{
     if(doc.exists){
-      const bal=doc.data().balance||0;
+      const data=doc.data();
+      const bal=data.balance||0;
       updateBalDisp(bal);
       const pfbal=document.getElementById('pf-balance');
       if(pfbal) pfbal.textContent='৳ '+bal.toLocaleString();
+      const pfspent=document.getElementById('pf-spent');
+      if(pfspent) pfspent.textContent=(data.totalSpent||0).toLocaleString();
+      const pfcb=document.getElementById('pf-cashback');
+      if(pfcb) pfcb.textContent=(data.cashback||0).toLocaleString();
     }
   });
-  db.collection('orders').where('userId','==',uid).onSnapshot(()=>{
+
+  // 2. User orders real-time
+  db.collection('orders').where('userId','==',uid).onSnapshot(snap=>{
     if(document.getElementById('page-orders').classList.contains('active')) loadOrders();
     if(document.getElementById('page-profile').classList.contains('active')) loadProfile();
   });
+
+  // 3. User tickets real-time
+  db.collection('tickets').where('userId','==',uid).onSnapshot(snap=>{
+    if(document.getElementById('page-support').classList.contains('active')) loadUserTickets();
+  });
+
+  // 4. Admin - all orders real-time
   let _firstOrderSnap=true;
   db.collection('orders').onSnapshot(snap=>{
     const ad=document.getElementById('admin-dash');
-    if(ad&&ad.style.display==='block'){loadAdminOrders();loadAdminStats();}
+    if(ad&&ad.style.display==='block'){
+      loadAdminOrders();
+      loadAdminStats();
+    }
     if(_firstOrderSnap){_firstOrderSnap=false;return;}
     snap.docChanges().forEach(c=>{
       if(c.type==='added'){
@@ -893,16 +922,38 @@ function startRealtimeListeners(uid){
       }
     });
   });
+
+  // 5. Admin - payments real-time
+  let _firstPaySnap=true;
   db.collection('payments').onSnapshot(snap=>{
     const ad=document.getElementById('admin-dash');
-    if(ad&&ad.style.display==='block'){loadAdminPayments();loadAdminStats();}
+    if(ad&&ad.style.display==='block'){
+      loadAdminPayments();
+      loadAdminStats();
+    }
+    if(_firstPaySnap){_firstPaySnap=false;return;}
     snap.docChanges().forEach(c=>{
       if(c.type==='added'){
         const p=c.doc.data();
-        showAdminToast('💳 New Payment!',p.userName+' — ৳'+p.amount);
+        showAdminToast('💳 New Payment!',p.userName+' — ৳'+(p.amount||0));
         bumpNotifBadge();
       }
     });
+  });
+
+  // 6. Admin - tickets real-time
+  db.collection('tickets').onSnapshot(()=>{
+    const ad=document.getElementById('admin-dash');
+    if(ad&&ad.style.display==='block') loadAdminInbox();
+  });
+
+  // 7. Admin - users real-time
+  db.collection('users').onSnapshot(()=>{
+    const ad=document.getElementById('admin-dash');
+    if(ad&&ad.style.display==='block'){
+      loadAdminUsers();
+      loadAdminStats();
+    }
   });
 }
 let _notifCount=0;
@@ -1156,7 +1207,7 @@ async function submitTicket(){
     document.getElementById('ticket-subj').value='';
     document.getElementById('ticket-msg').value='';
     showNotif('Ticket Submitted!','We\'ll reply soon','green');
-    loadUserTickets();
+    await loadUserTickets();
     if(document.getElementById('admin-dash').style.display==='block') loadAdminInbox();
   }catch(e){showNotif('Error',e.message,'red');}
 }
