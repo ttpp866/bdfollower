@@ -692,21 +692,11 @@ function showPlatform(p,btn){
 }
 
 // ======= NAV =======
-function showPage(pg, skipAuthCheck){
-  // If auth not loaded yet and user tries protected page, save it and restore after auth
+function showPage(pg){
   const protectedPages=['addfunds','orders','support','profile'];
-  if(protectedPages.includes(pg) && !auth.currentUser && !skipAuthCheck){
-    if(!_authLoaded){
-      // Auth still loading - save page and show after auth
-      _pendingPage = pg;
-      return;
-    }
+  if(protectedPages.includes(pg)&&!auth.currentUser){
     showNotif('Login Required','Please login first','red');
     pg='login';
-  }
-  // Save current page to localStorage (except login/register/admin/home)
-  if(!['login','register','admin','home'].includes(pg)){
-    localStorage.setItem('lastPage', pg);
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('page-'+pg);
@@ -718,7 +708,6 @@ function showPage(pg, skipAuthCheck){
   if(pg==='admin'&&document.getElementById('admin-dash').style.display==='block') refreshAdminAll();
   window.scrollTo(0,0);
 }
-// alias
 function sp(p){showPage(p);}
 function toggleMenu(){document.getElementById('mob-menu').classList.toggle('open')}
 function cm(){document.getElementById('mob-menu').classList.remove('open')}
@@ -827,15 +816,8 @@ async function doLogout(){
   showPage('home');
 }
 
-// Track auth state
-let _authLoaded = false;
-let _pendingPage = null;
-// Hide loader max 5s
-setTimeout(()=>{ document.getElementById('page-loader').style.display='none'; },5000);
-
+// ======= AUTH STATE =======
 auth.onAuthStateChanged(async user=>{
-  document.getElementById('page-loader').style.display='none';
-  _authLoaded = true;
   if(user){
     try{
       const doc=await db.collection('users').doc(user.uid).get();
@@ -846,36 +828,22 @@ auth.onAuthStateChanged(async user=>{
         document.getElementById('login-btn').textContent='Login';
         document.getElementById('reg-btn').disabled=false;
         document.getElementById('reg-btn').textContent='Create Account';
-        // Start real-time listeners
         startRealtimeListeners(user.uid);
-        // Restore last page on refresh, or go to pending page
         const ap=document.querySelector('.page.active');
-        const isOnAuthPage = ap&&(ap.id==='page-login'||ap.id==='page-register');
-        if(_pendingPage){
-          const pg=_pendingPage; _pendingPage=null;
-          showPage(pg, true);
-        } else if(isOnAuthPage){
+        const onAuthPage=ap&&(ap.id==='page-login'||ap.id==='page-register');
+        if(onAuthPage){
           showNotif('Welcome!','Logged in as '+data.name,'green');
-          const rawPg2=localStorage.getItem('lastPage')||'services';
-          const lastPg2=(rawPg2==='home')?'services':rawPg2;
-          showPage(lastPg2, true);
-        } else {
-          // Page refresh - restore same page silently
-          const rawPg=localStorage.getItem('lastPage')||'services';
-          const lastPg=(rawPg==='home')?'services':rawPg;
-          showPage(lastPg, true);
+          showPage('services');
         }
       }
     }catch(e){console.error(e);}
   } else {
-    // User not logged in
     setLoggedOut();
-    const ap=document.querySelector('.page.active');
-    if(ap&&!['page-home','page-services','page-login','page-register'].includes(ap.id)){
-      showPage('home');
-    }
   }
+  // Hide loader after auth resolved
+  document.getElementById('page-loader').style.display='none';
 });
+
 
 // ======= REAL-TIME LISTENERS =======
 function startRealtimeListeners(uid){
