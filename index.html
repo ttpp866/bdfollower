@@ -698,9 +698,9 @@ function showPage(pg){
     showNotif('Login Required','Please login first','red');
     pg='login';
   }
-  // Block admin page if regular user is logged in
+  // Block admin page if regular user is logged in (not admin)
   if(pg==='admin'&&auth.currentUser&&sessionStorage.getItem('adminLoggedIn')!=='true'){
-    showNotif('Access Denied','Admin only area!','red');
+    showNotif('Access Denied','Admin only area! Use secret URL.','red');
     return;
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1371,9 +1371,28 @@ renderSvcs('yt');
 if(sessionStorage.getItem('adminLoggedIn')==='true'){
   document.getElementById('admin-login-sc').style.display='none';
   document.getElementById('admin-dash').style.display='block';
-  // Wait for page to load then refresh admin data
   setTimeout(()=>refreshAdminAll(), 1500);
 }
+
+// Secret URL hash admin access: bdfollower.vercel.app/#admin
+function checkHashAdmin(){
+  if(window.location.hash==='#admin'){
+    // Show admin page regardless of login state
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-admin').classList.add('active');
+    if(sessionStorage.getItem('adminLoggedIn')==='true'){
+      document.getElementById('admin-login-sc').style.display='none';
+      document.getElementById('admin-dash').style.display='block';
+      refreshAdminAll();
+    }
+    // Clear hash so URL looks normal
+    history.replaceState(null,'',window.location.pathname);
+  }
+}
+// Check on load
+checkHashAdmin();
+// Check on hash change
+window.addEventListener('hashchange', checkHashAdmin);
 </script>
 </body>
 </html>
