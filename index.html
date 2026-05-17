@@ -704,8 +704,8 @@ function showPage(pg, skipAuthCheck){
     showNotif('Login Required','Please login first','red');
     pg='login';
   }
-  // Save current page to localStorage (except login/register/admin)
-  if(!['login','register','admin'].includes(pg)){
+  // Save current page to localStorage (except login/register/admin/home)
+  if(!['login','register','admin','home'].includes(pg)){
     localStorage.setItem('lastPage', pg);
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -856,11 +856,13 @@ auth.onAuthStateChanged(async user=>{
           showPage(pg, true);
         } else if(isOnAuthPage){
           showNotif('Welcome!','Logged in as '+data.name,'green');
-          const lastPg=localStorage.getItem('lastPage')||'services';
-          showPage(lastPg, true);
+          const rawPg2=localStorage.getItem('lastPage')||'services';
+          const lastPg2=(rawPg2==='home')?'services':rawPg2;
+          showPage(lastPg2, true);
         } else {
           // Page refresh - restore same page silently
-          const lastPg=localStorage.getItem('lastPage')||'services';
+          const rawPg=localStorage.getItem('lastPage')||'services';
+          const lastPg=(rawPg==='home')?'services':rawPg;
           showPage(lastPg, true);
         }
       }
