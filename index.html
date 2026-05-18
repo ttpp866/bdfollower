@@ -28,17 +28,20 @@ const db = firebase.firestore();
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0b0f;--bg2:#111318;--bg3:#1a1d25;--card:#161921;
-  --border:#ffffff12;--border2:#ffffff20;--text:#f0f2ff;--text2:#9ba3c0;--text3:#5a6280;
+  --bg:#07080c;--bg2:#0d0f15;--bg3:#131620;--card:rgba(255,255,255,0.03);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
+  --text:#f0f2ff;--text2:#9ba3c0;--text3:#5a6280;
   --accent:#6c5ce7;--accent2:#a78bfa;--accent3:#00d4aa;--gold:#f59e0b;
   --green:#10b981;--red:#ef4444;--blue:#3b82f6;
+  --glass:rgba(255,255,255,0.03);--glass-border:rgba(255,255,255,0.1);
+  --shadow:0 8px 32px 0 rgba(0,0,0,0.37);
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 h1,h2,h3,h4{font-family:'Syne',sans-serif}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,11,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,8,12,0.7);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--glass-border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;box-shadow:0 1px 0 rgba(255,255,255,0.05)}
 .logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .nav-links{display:flex;gap:.1rem;align-items:center}
 .nav-btn{background:none;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:.45rem .7rem;border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -47,7 +50,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,11,15,.92
 .balance-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:.28rem .85rem;font-size:.75rem;color:var(--accent3);font-weight:600;white-space:nowrap}
 .hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:.4rem;border:none;background:none}
 .hamburger span{display:block;width:22px;height:2px;background:var(--text2);border-radius:2px}
-.mob-menu{display:none;position:fixed;top:60px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);z-index:99;padding:.875rem;flex-direction:column;gap:.35rem}
+.mob-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(7,8,12,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--glass-border);z-index:99;padding:.875rem;flex-direction:column;gap:.35rem}
 .mob-menu.open{display:flex}
 .mob-menu .nav-btn{text-align:left;padding:.7rem 1rem;font-size:.875rem;width:100%}
 
@@ -85,8 +88,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,11,15,.92
 
 /* SERVICE GRID */
 .service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.875rem}
-.service-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;transition:all .25s}
-.service-card:hover{border-color:var(--accent2);transform:translateY(-2px)}
+.service-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:1.1rem;transition:all .3s;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
+.service-card:hover{border-color:var(--accent2);transform:translateY(-3px);box-shadow:0 12px 40px 0 rgba(108,92,231,0.2)}
 .svc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.65rem;gap:.5rem}
 .svc-name{font-size:.875rem;font-weight:500;line-height:1.4;flex:1}
 .svc-price{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--accent3);white-space:nowrap;flex-shrink:0}
@@ -101,17 +104,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,11,15,.92
 .order-btn:hover{opacity:.85}
 
 /* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:1.25rem;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
 
 /* FORM */
 .fg{margin-bottom:1rem}
 label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:.4rem;font-weight:500}
-input,select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.68rem .875rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input,select,textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:.68rem .875rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:all .2s;-webkit-appearance:none;backdrop-filter:blur(8px)}
 input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 input::placeholder,textarea::placeholder{color:var(--text3)}
 select option{background:var(--bg2)}
 textarea{resize:vertical;min-height:85px}
-.submit-btn{width:100%;padding:.82rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .25s;margin-top:.2rem}
+.submit-btn{width:100%;padding:.82rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .25s;margin-top:.2rem}
 .submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(108,92,231,.38)}
 .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
 .err-box{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:.7rem .875rem;margin-bottom:.875rem;font-size:.83rem;color:var(--red)}
@@ -125,7 +128,7 @@ textarea{resize:vertical;min-height:85px}
 .bonus-bar{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(236,72,153,.07));border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:.8rem 1rem;display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem;font-size:.84rem;color:var(--gold)}
 
 /* PROFILE */
-.profile-header{background:linear-gradient(135deg,rgba(108,92,231,.14),rgba(0,212,170,.07));border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.profile-header{background:linear-gradient(135deg,rgba(108,92,231,.08),rgba(0,212,170,.04));border:1px solid var(--glass-border);border-radius:24px;padding:1.4rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
 .avatar{width:60px;height:60px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;flex-shrink:0}
 .balance-display{margin-left:auto;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:.8rem 1.1rem;text-align:right}
 .balance-amt{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accent3)}
@@ -133,13 +136,13 @@ textarea{resize:vertical;min-height:85px}
 
 /* STATS MINI */
 .mini-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.75rem;margin-bottom:1.4rem}
-.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.mini-stat{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:1rem;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
 .mini-stat-num{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:.15rem}
 .mini-stat-label{font-size:.72rem;color:var(--text3)}
 .g .mini-stat-num{color:var(--green)}.pu .mini-stat-num{color:var(--accent2)}.go .mini-stat-num{color:var(--gold)}
 
 /* ORDER CARD */
-.order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.95rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.order-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:.95rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
 .order-icon{width:38px;height:38px;background:var(--bg3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
 .order-info{flex:1;min-width:150px}
 .order-svc{font-weight:500;font-size:.84rem;margin-bottom:.18rem}
@@ -147,15 +150,15 @@ textarea{resize:vertical;min-height:85px}
 .order-amt{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;color:var(--accent3);white-space:nowrap}
 
 /* TICKET */
-.ticket-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.95rem;cursor:pointer;transition:all .2s}
-.ticket-item:hover{border-color:var(--accent2)}
+.ticket-item{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:.95rem;cursor:pointer;transition:all .3s;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
+.ticket-item:hover{border-color:var(--accent2);transform:translateY(-2px)}
 .ticket-item.unread{border-left:3px solid var(--accent2)}
 .ticket-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;flex-wrap:wrap;gap:.4rem}
 
 /* ADMIN */
 .dash-layout{display:flex;gap:1.1rem;padding:1.1rem;max-width:1400px;margin:0 auto}
 .dash-sidebar{width:190px;flex-shrink:0}
-.dash-sidebar-inner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.8rem;position:sticky;top:72px}
+.dash-sidebar-inner{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:.8rem;position:sticky;top:72px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
 .dnav{display:flex;align-items:center;gap:.55rem;width:100%;background:none;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:.58rem .75rem;border-radius:8px;cursor:pointer;transition:all .2s;text-align:left}
 .dnav:hover,.dnav.active{background:rgba(108,92,231,.12);color:var(--accent2)}
 .dnav svg{width:14px;height:14px;flex-shrink:0}
@@ -163,13 +166,13 @@ textarea{resize:vertical;min-height:85px}
 .dash-section{display:none}
 .dash-section.active{display:block}
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.4rem}
-.dash-stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.dash-stat{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:1rem;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow)}
 .dash-stat-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:.15rem}
 .dash-stat-label{font-size:.72rem;color:var(--text3)}
 .d-g .dash-stat-num{color:var(--green)}.d-p .dash-stat-num{color:var(--accent2)}.d-go .dash-stat-num{color:var(--gold)}.d-b .dash-stat-num{color:var(--blue)}
 
 /* TABLE */
-.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.table-wrap{overflow-x:auto;border-radius:20px;border:1px solid var(--glass-border);-webkit-overflow-scrolling:touch;box-shadow:var(--shadow)}
 table{width:100%;border-collapse:collapse;min-width:480px}
 th{background:var(--bg3);padding:.6rem .875rem;text-align:left;font-size:.72rem;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
 td{padding:.75rem .875rem;font-size:.82rem;border-bottom:1px solid var(--border);vertical-align:middle}
@@ -192,18 +195,18 @@ tr:hover td{background:rgba(255,255,255,.015)}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);padding:1rem}
 .modal-overlay.show{opacity:1;pointer-events:all}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.875rem;max-width:410px;width:100%;text-align:center;transform:scale(.9);transition:transform .3s}
+.modal{background:rgba(22,25,33,0.85);border:1px solid var(--glass-border);border-radius:24px;padding:1.875rem;max-width:410px;width:100%;text-align:center;transform:scale(.9);transition:transform .3s;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:var(--shadow)}
 .modal-overlay.show .modal{transform:scale(1)}
 .modal-icon{font-size:2.8rem;margin-bottom:.8rem}
 .modal h3{font-size:1.25rem;margin-bottom:.6rem}
 .modal p{color:var(--text2);line-height:1.7;margin-bottom:1.2rem;font-size:.875rem}
 .modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.55rem 1.4rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem;transition:all .2s}
 .modal-close:hover{border-color:var(--accent2)}
-.order-modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.6rem;max-width:460px;width:100%;transform:translateY(20px);transition:transform .3s;max-height:90vh;overflow-y:auto}
+.order-modal{background:rgba(22,25,33,0.9);border:1px solid var(--glass-border);border-radius:24px;padding:1.6rem;max-width:460px;width:100%;transform:translateY(20px);transition:transform .3s;max-height:90vh;overflow-y:auto;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:var(--shadow)}
 .modal-overlay.show .order-modal{transform:translateY(0)}
 
 /* NOTIF */
-.notif{position:fixed;top:68px;right:1rem;z-index:300;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:.8rem 1rem;min-width:240px;max-width:300px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.notif{position:fixed;top:68px;right:1rem;z-index:300;background:rgba(22,25,33,0.9);border:1px solid var(--glass-border);border-radius:16px;padding:.8rem 1rem;min-width:240px;max-width:300px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--shadow);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .notif.show{transform:translateX(0)}
 .notif-head{display:flex;align-items:center;gap:.45rem;font-weight:500;margin-bottom:.18rem;font-size:.875rem}
 .notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -346,6 +349,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div class="fg"><label>Your Name / Username</label><input type="text" id="fund-name" placeholder="Your name or username"></div>
       <div class="fg"><label>Amount Sent (BDT)</label><input type="number" id="fund-amount" placeholder="e.g. 500" min="1" oninput="checkBonus()"></div>
       <div class="fg"><label>bKash Transaction ID</label><input type="text" id="fund-txn" placeholder="e.g. 8FG2H9KL01"></div>
+      <div id="bonus-preview" style="display:none;background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.875rem;color:var(--text2)"></div>
       <button class="submit-btn" id="pay-submit-btn" onclick="submitPayment()">Submit Payment Request</button>
     </div>
   </div>
@@ -491,7 +495,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="dash-section active" id="dash-payments">
           <h2 style="margin-bottom:.875rem;font-size:1.05rem">⏳ Pending Payments</h2>
           <div class="table-wrap">
-            <table><thead><tr><th>User</th><th>Amount</th><th>Txn ID</th><th>Time</th><th>Action</th></tr></thead>
+            <table><thead><tr><th>User</th><th>Sent</th><th>Total+Bonus</th><th>Txn ID</th><th>Time</th><th>Action</th></tr></thead>
             <tbody id="admin-pay-tb"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
           </div>
         </div>
@@ -989,11 +993,23 @@ async function submitPayment(){
   btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Submitting...';
   try{
     const uid=auth.currentUser?auth.currentUser.uid:null;
+    const originalAmount=amount;
+    const bonusPct=currentBonus.pct||0;
+    const bonusAmt=currentBonus.bonusAmt||0;
+    const totalAmount=bonusPct>0?(originalAmount+bonusAmt):originalAmount;
     await db.collection('payments').add({
-      userName:name, amount, txn, userId:uid,
+      userName:name,
+      amount:totalAmount,
+      originalAmount,
+      bonusPercentage:bonusPct,
+      bonusAmount:bonusAmt,
+      txn, userId:uid,
       status:'pending',
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
+    currentBonus={pct:0,bonusAmt:0,total:0};
+    const preview=document.getElementById('bonus-preview');
+    if(preview) preview.style.display='none';
     document.getElementById('fund-name').value='';
     document.getElementById('fund-amount').value='';
     document.getElementById('fund-txn').value='';
@@ -1044,14 +1060,23 @@ async function rejectPayment(payId){
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
-let bonusShown=false;
+let currentBonus={pct:0,bonusAmt:0,total:0};
 function checkBonus(){
-  const amt=parseFloat(document.getElementById('fund-amount').value);
-  if(amt>=500&&!bonusShown){
-    bonusShown=true;
-    document.getElementById('bonus-amt').textContent=amt.toLocaleString();
-    setTimeout(()=>showModal('bonus-modal'),400);
-    setTimeout(()=>{bonusShown=false;},8000);
+  const amt=parseFloat(document.getElementById('fund-amount').value)||0;
+  const preview=document.getElementById('bonus-preview');
+  if(amt>=500){
+    // Random bonus 1-5%
+    const pct=Math.floor(Math.random()*5)+1;
+    const bonusAmt=Math.round(amt*pct/100);
+    const total=amt+bonusAmt;
+    currentBonus={pct,bonusAmt,total};
+    if(preview){
+      preview.style.display='block';
+      preview.innerHTML=`🎉 Congrats! You got a <strong style="color:var(--accent3)">${pct}%</strong> bonus! Total: <strong style="color:var(--gold)">${total.toLocaleString()} BDT</strong>`;
+    }
+  } else {
+    currentBonus={pct:0,bonusAmt:0,total:amt};
+    if(preview) preview.style.display='none';
   }
 }
 
@@ -1402,9 +1427,11 @@ async function loadAdminPayments(){
     tb.innerHTML=snap.docs.map(d=>{
       const p=d.data(); const pid=d.id;
       const t=p.createdAt?new Date(p.createdAt.seconds*1000).toLocaleString():'Just now';
+      const bonusInfo=p.bonusPercentage?`<br><span style="color:var(--accent3);font-size:.72rem">+${p.bonusPercentage}% bonus (৳${p.bonusAmount})</span>`:'';
       return`<tr>
         <td><strong>${p.userName}</strong></td>
-        <td style="color:var(--accent3);font-weight:500">৳ ${p.amount.toLocaleString()}</td>
+        <td style="font-weight:500">৳ ${(p.originalAmount||p.amount).toLocaleString()}${bonusInfo}</td>
+        <td style="color:var(--accent3);font-weight:600">৳ ${p.amount.toLocaleString()}</td>
         <td style="font-family:monospace;font-size:.77rem">${p.txn}</td>
         <td style="color:var(--text3);font-size:.77rem">${t}</td>
         <td class="td-acts">
