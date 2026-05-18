@@ -513,7 +513,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
             <div id="reply-panel" class="card" style="display:none">
               <h3 id="reply-subj" style="font-size:.9rem;margin-bottom:.2rem"></h3>
               <p id="reply-from" style="font-size:.75rem;color:var(--text3);margin-bottom:.75rem"></p>
-              <div id="reply-msg-txt" style="font-size:.84rem;color:var(--text2);background:var(--bg3);border-radius:8px;padding:.8rem;margin-bottom:.75rem;line-height:1.6"></div>
+              <div id="reply-msg-txt" style="font-size:.84rem;color:var(--text2);background:var(--bg3);border-radius:8px;padding:.8rem;margin-bottom:.75rem;line-height:1.6;max-height:200px;overflow-y:auto"></div>
               <label style="display:block;font-size:.78rem;color:var(--text2);margin-bottom:.35rem">Your Reply</label>
               <textarea id="admin-reply" placeholder="Type reply..." style="margin-bottom:.6rem;min-height:70px"></textarea>
               <button class="submit-btn" style="padding:.55rem;font-size:.84rem" onclick="sendReply()">Send Reply</button>
@@ -1229,7 +1229,7 @@ async function loadUserTickets(){
       return`<div class="ticket-item ${t.status==='open'?'unread':''}" onclick="openUserTicket('${tid}')" style="cursor:pointer">
         <div class="ticket-head">
           <span style="font-weight:500;font-size:.875rem">${t.subject}</span>
-          <span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.status==='open'?'Open':'Replied'}</span>
+          <span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.adminReply?'Replied':'Open'}</span>
         </div>
         <div style="font-size:.8rem;color:var(--text2);margin-bottom:${hasReply?'.4rem':'0'}">${t.message.slice(0,60)}...</div>
         ${hasReply?`<div style="background:rgba(108,92,231,.1);border-left:3px solid var(--accent2);padding:.4rem .75rem;border-radius:0 6px 6px 0;font-size:.78rem;color:var(--accent2)">💬 Admin: ${t.adminReply.slice(0,60)}...</div>`:''}
@@ -1243,26 +1243,84 @@ async function openUserTicket(tid){
     const doc=await db.collection('tickets').doc(tid).get();
     const t=doc.data();
     const overlay=document.createElement('div');
-    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(8px)';
+    overlay.id='ticket-overlay';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:250;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(10px)';
     overlay.innerHTML=`
-      <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.75rem;max-width:500px;width:100%;max-height:80vh;overflow-y:auto">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:.5rem">
-          <h3 style="font-size:1rem;font-family:'Syne',sans-serif">${t.subject}</h3>
-          <span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.status==='open'?'Open':'Replied'}</span>
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+        <!-- Header -->
+        <div style="padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:1rem">${t.subject}</div>
+            <div style="font-size:.72rem;color:var(--text3);margin-top:.1rem">Support Ticket</div>
+          </div>
+          <button onclick="document.getElementById('ticket-overlay').remove()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:.35rem .75rem;cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif">✕ Close</button>
         </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:.875rem;color:var(--text2);line-height:1.6">
-          <div style="font-size:.72rem;color:var(--text3);margin-bottom:.4rem;font-weight:500">YOUR MESSAGE</div>
-          ${t.message}
+        <!-- Messages -->
+        <div id="ticket-messages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem">
+          <div id="ticket-msgs-inner">Loading...</div>
         </div>
-        ${t.adminReply?`
-        <div style="background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.25);border-radius:10px;padding:1rem;margin-bottom:1rem;line-height:1.6">
-          <div style="font-size:.72rem;color:var(--accent2);margin-bottom:.4rem;font-weight:600">💬 ADMIN REPLY</div>
-          <div style="font-size:.875rem;color:var(--text)">${t.adminReply}</div>
-        </div>`:'<div style="color:var(--text3);font-size:.84rem;margin-bottom:1rem;text-align:center;padding:.75rem;background:var(--bg3);border-radius:8px">⏳ Waiting for admin reply...</div>'}
-        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:.7rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem">Close</button>
+        <!-- Input -->
+        <div style="padding:1rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:.5rem">
+          <input type="text" id="ticket-reply-input" placeholder="Type a message..." style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:.65rem .875rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none" onkeydown="if(event.key==='Enter')sendUserReply('${tid}')">
+          <button onclick="sendUserReply('${tid}')" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:.65rem 1.1rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;white-space:nowrap">Send</button>
+        </div>
       </div>`;
     overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
     document.body.appendChild(overlay);
+    // Load messages
+    loadTicketMessages(tid);
+  }catch(e){console.error(e);}
+}
+
+async function loadTicketMessages(tid){
+  const el=document.getElementById('ticket-msgs-inner');
+  if(!el)return;
+  try{
+    const doc=await db.collection('tickets').doc(tid).get();
+    const t=doc.data();
+    const msgs=t.messages||[];
+    // Build initial message + all replies
+    let html=`
+      <div style="display:flex;justify-content:flex-end;margin-bottom:.25rem">
+        <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 16px 4px 16px;padding:.65rem 1rem;max-width:80%;font-size:.875rem;line-height:1.5">${t.message}</div>
+      </div>`;
+    msgs.forEach(m=>{
+      if(m.from==='admin'){
+        html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.25rem">
+          <div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:16px 16px 16px 4px;padding:.65rem 1rem;max-width:80%;font-size:.875rem;line-height:1.5">
+            <div style="font-size:.7rem;color:var(--accent2);margin-bottom:.25rem;font-weight:600">Admin</div>
+            ${m.text}
+          </div>
+        </div>`;
+      } else {
+        html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.25rem">
+          <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 16px 4px 16px;padding:.65rem 1rem;max-width:80%;font-size:.875rem;line-height:1.5">${m.text}</div>
+        </div>`;
+      }
+    });
+    el.innerHTML=html;
+    // Scroll to bottom
+    const msgDiv=document.getElementById('ticket-messages');
+    if(msgDiv) msgDiv.scrollTop=msgDiv.scrollHeight;
+  }catch(e){el.innerHTML='Error loading messages';}
+}
+
+async function sendUserReply(tid){
+  const input=document.getElementById('ticket-reply-input');
+  const text=input?input.value.trim():'';
+  if(!text)return;
+  input.value='';
+  try{
+    await db.collection('tickets').doc(tid).update({
+      messages:firebase.firestore.FieldValue.arrayUnion({
+        from:'user',
+        text:text,
+        time:new Date().toISOString()
+      }),
+      status:'open',
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    loadTicketMessages(tid);
   }catch(e){console.error(e);}
 }
 
@@ -1402,24 +1460,38 @@ async function openAdminTicket(tid){
   try{
     const doc=await db.collection('tickets').doc(tid).get();
     const t=doc.data();
-    // Don't auto-close - only close when reply sent
     const panel=document.getElementById('reply-panel');
     panel.style.display='block';
-    document.getElementById('reply-subj').textContent=t.subject;
-    document.getElementById('reply-from').textContent='From: '+t.userName;
+    document.getElementById('reply-subj').textContent=t.subject+' — '+t.userName;
+    document.getElementById('reply-from').textContent='User: '+t.userName;
     document.getElementById('reply-msg-txt').textContent=t.message;
-    // Show existing reply if any
-    const existReply=document.getElementById('existing-reply');
-    if(existReply) existReply.remove();
-    if(t.adminReply){
-      const div=document.createElement('div');
-      div.id='existing-reply';
-      div.style.cssText='background:rgba(108,92,231,.1);border-radius:8px;padding:.75rem;margin-bottom:.75rem;font-size:.82rem;color:var(--accent2)';
-      div.textContent='Previous reply: '+t.adminReply;
-      document.getElementById('reply-msg-txt').after(div);
-    }
     document.getElementById('admin-reply').value='';
+    // Load chat messages in admin panel
+    loadAdminChatMessages(tid);
   }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function loadAdminChatMessages(tid){
+  if(_chatListeners['admin_'+tid]) _chatListeners['admin_'+tid]();
+  // Show chat history in reply-msg-txt area
+  _chatListeners['admin_'+tid]=db.collection('tickets').doc(tid).collection('messages')
+    .orderBy('createdAt','asc')
+    .onSnapshot(snap=>{
+      const el=document.getElementById('reply-msg-txt');
+      if(!el) return;
+      if(snap.empty){ el.textContent='No messages yet'; return; }
+      el.innerHTML=snap.docs.map(d=>{
+        const m=d.data();
+        const isAdmin=m.senderName==='Admin';
+        return`<div style="margin-bottom:.5rem;text-align:${isAdmin?'right':'left'}">
+          <span style="display:inline-block;background:${isAdmin?'rgba(108,92,231,.2)':'var(--bg3)'};padding:.4rem .75rem;border-radius:10px;font-size:.82rem;max-width:85%">
+            <span style="font-size:.7rem;color:${isAdmin?'var(--accent2)':'var(--text3)'};display:block;margin-bottom:.15rem">${isAdmin?'You (Admin)':'User'}</span>
+            ${m.text}
+          </span>
+        </div>`;
+      }).join('');
+      el.scrollTop=el.scrollHeight;
+    });
 }
 
 async function sendReply(){
@@ -1427,19 +1499,20 @@ async function sendReply(){
   if(!r){showNotif('Error','Type a reply first','red');return;}
   try{
     if(curTicketId){
+      // Send as chat message
+      await db.collection('tickets').doc(curTicketId).collection('messages').add({
+        text:r, senderId:'admin', senderName:'Admin',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Update ticket - keep open so conversation continues
       await db.collection('tickets').doc(curTicketId).update({
         adminReply:r,
-        status:'closed',
-        repliedAt:firebase.firestore.FieldValue.serverTimestamp()
+        status:'open',
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
       });
     }
     document.getElementById('admin-reply').value='';
-    document.getElementById('reply-panel').style.display='none';
-    const existReply=document.getElementById('existing-reply');
-    if(existReply) existReply.remove();
-    curTicketId=null;
-    showNotif('Reply Sent!','User will see your reply','green');
-    loadAdminInbox();
+    showNotif('Reply Sent! ✅','User will see your message','green');
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
