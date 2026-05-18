@@ -205,6 +205,22 @@ tr:hover td{background:rgba(255,255,255,.015)}
 .order-modal{background:rgba(22,25,33,0.9);border:1px solid var(--glass-border);border-radius:24px;padding:1.6rem;max-width:460px;width:100%;transform:translateY(20px);transition:transform .3s;max-height:90vh;overflow-y:auto;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:var(--shadow)}
 .modal-overlay.show .order-modal{transform:translateY(0)}
 
+/* ===== QUANTITY INPUT — নতুন ===== */
+.qty-section{background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.18);border-radius:14px;padding:1rem;margin-bottom:.9rem}
+.qty-row{display:flex;align-items:center;gap:.6rem}
+.qty-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-family:'DM Sans',sans-serif}
+.qty-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.qty-input{text-align:center;font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;background:var(--bg2);border-radius:10px;border:1px solid var(--border2);flex:1}
+.qty-input:focus{border-color:var(--accent2)}
+.cost-display{margin-top:.75rem;display:flex;justify-content:space-between;align-items:center;padding:.6rem .75rem;background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.18);border-radius:10px}
+.cost-label{font-size:.78rem;color:var(--text2)}
+.cost-value{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent3)}
+.qty-hint{font-size:.72rem;color:var(--text3);margin-top:.45rem;text-align:center}
+.qty-err{font-size:.75rem;color:var(--red);margin-top:.35rem;display:none;text-align:center}
+
+/* balance warning */
+.balance-warn{background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.22);border-radius:10px;padding:.6rem .875rem;font-size:.8rem;color:var(--red);display:none;margin-bottom:.6rem;text-align:center}
+
 /* NOTIF */
 .notif{position:fixed;top:68px;right:1rem;z-index:300;background:rgba(22,25,33,0.9);border:1px solid var(--glass-border);border-radius:16px;padding:.8rem 1rem;min-width:240px;max-width:300px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--shadow);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .notif.show{transform:translateX(0)}
@@ -454,7 +470,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
 <!-- ======== ADMIN ======== -->
 <div class="page" id="page-admin">
-  <!-- Login Screen -->
   <div id="admin-login-sc" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:1.5rem">
     <div style="width:100%;max-width:370px">
       <h1 style="text-align:center;margin-bottom:.4rem;font-size:1.55rem">🔐 Admin Login</h1>
@@ -467,7 +482,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
     </div>
   </div>
 
-  <!-- Dashboard -->
   <div id="admin-dash" style="display:none">
     <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
       <div><h1>Admin Dashboard</h1><p>BD.follower Control Panel</p></div>
@@ -483,7 +497,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
         </div>
       </div>
       <div class="dash-content">
-        <!-- Stats -->
         <div class="dash-grid">
           <div class="dash-stat d-g"><div class="dash-stat-num" id="st-rev">৳ 0</div><div class="dash-stat-label">Revenue</div></div>
           <div class="dash-stat d-p"><div class="dash-stat-num" id="st-pp">0</div><div class="dash-stat-label">Pending Payments</div></div>
@@ -491,7 +504,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div class="dash-stat d-b"><div class="dash-stat-num" id="st-usr">0</div><div class="dash-stat-label">Users</div></div>
         </div>
 
-        <!-- PAYMENTS -->
         <div class="dash-section active" id="dash-payments">
           <h2 style="margin-bottom:.875rem;font-size:1.05rem">⏳ Pending Payments</h2>
           <div class="table-wrap">
@@ -500,16 +512,14 @@ tr:hover td{background:rgba(255,255,255,.015)}
           </div>
         </div>
 
-        <!-- ORDERS -->
         <div class="dash-section" id="dash-orders">
           <h2 style="margin-bottom:.875rem;font-size:1.05rem">📋 All Orders</h2>
           <div class="table-wrap">
-            <table><thead><tr><th>Order ID</th><th>User</th><th>Service</th><th>Amount</th><th>Status</th><th>Change Status</th></tr></thead>
-            <tbody id="admin-ord-tb"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
+            <table><thead><tr><th>Order ID</th><th>User</th><th>Service</th><th>Qty</th><th>Amount</th><th>Status</th><th>Change</th></tr></thead>
+            <tbody id="admin-ord-tb"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
           </div>
         </div>
 
-        <!-- INBOX -->
         <div class="dash-section" id="dash-inbox">
           <h2 style="margin-bottom:.875rem;font-size:1.05rem">📬 Support Inbox</h2>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem">
@@ -525,7 +535,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
           </div>
         </div>
 
-        <!-- USERS -->
         <div class="dash-section" id="dash-users">
           <h2 style="margin-bottom:.875rem;font-size:1.05rem">👥 Registered Users</h2>
           <div class="table-wrap">
@@ -557,18 +566,45 @@ tr:hover td{background:rgba(255,255,255,.015)}
   </div>
 </div>
 
+<!-- ====== ORDER MODAL (UPDATED) ====== -->
 <div class="modal-overlay" id="order-modal">
   <div class="order-modal">
     <h3 style="margin-bottom:.25rem;font-size:1.1rem" id="om-title">Order Service</h3>
-    <p style="color:var(--text2);font-size:.8rem;margin-bottom:1rem" id="om-desc"></p>
-    <div style="background:var(--bg3);border-radius:10px;padding:.8rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--text2);font-size:.875rem">Cost:</span>
-      <span style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent3)" id="om-price">0 BDT</span>
+    <p style="color:var(--text2);font-size:.8rem;margin-bottom:.9rem" id="om-desc"></p>
+
+    <!-- Price per 1000 info -->
+    <div style="background:var(--bg3);border-radius:10px;padding:.7rem .875rem;margin-bottom:.9rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.8rem">Rate (per 1000)</span>
+      <span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent3)" id="om-rate">৳ 0</span>
     </div>
-    <div style="background:var(--bg3);border-radius:10px;padding:.8rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--text2);font-size:.875rem">Your Balance:</span>
-      <span style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;color:var(--green)" id="om-bal">0 BDT</span>
+
+    <!-- Quantity Section -->
+    <div class="qty-section">
+      <label style="margin-bottom:.5rem;font-size:.8rem;color:var(--text2)">📦 Quantity (Minimum 100)</label>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQty(-100)">−</button>
+        <input type="number" id="order-qty" class="qty-input" value="1000" min="100" step="100" oninput="onQtyInput()">
+        <button class="qty-btn" onclick="changeQty(100)">+</button>
+      </div>
+      <div class="qty-hint">প্রতি ১০০ এর গুণিতকে order করুন</div>
+      <div class="qty-err" id="qty-err">⚠️ Minimum 100 followers order করতে হবে!</div>
+
+      <!-- Real-time cost -->
+      <div class="cost-display" style="margin-top:.75rem">
+        <span class="cost-label">💰 Total Cost</span>
+        <span class="cost-value" id="om-total-cost">৳ 0</span>
+      </div>
     </div>
+
+    <!-- Balance row -->
+    <div style="background:var(--bg3);border-radius:10px;padding:.7rem .875rem;margin-bottom:.9rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.8rem">Your Balance</span>
+      <span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:600;color:var(--green)" id="om-bal">৳ 0</span>
+    </div>
+
+    <!-- Balance warning -->
+    <div class="balance-warn" id="om-bal-warn">⚠️ Insufficient balance! Please <a onclick="closeModal('order-modal');showPage('addfunds')" style="color:var(--red);cursor:pointer;text-decoration:underline">Add Funds</a> first.</div>
+
     <div class="fg"><label>Your Profile / Page URL</label><input type="url" id="order-url" placeholder="https://youtube.com/channel/..."></div>
     <div style="display:flex;gap:.6rem">
       <button class="submit-btn" id="place-order-btn" onclick="placeOrder()" style="flex:1">Place Order</button>
@@ -581,7 +617,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
   <div class="modal">
     <div class="modal-icon">✅</div>
     <h3>Order Placed!</h3>
-    <p>Order placed! Now <strong style="color:var(--blue)">processing</strong>. Track it in My Orders.</p>
+    <p id="order-ok-msg">Order placed! Now <strong style="color:var(--blue)">processing</strong>. Track it in My Orders.</p>
     <button class="modal-close" onclick="closeModal('order-ok-modal');showPage('orders')">Track Order</button>
   </div>
 </div>
@@ -641,6 +677,7 @@ const SVCS = {
 };
 const PEMOJI = {yt:'▶️',fb:'📘',li:'💼',ig:'📸',tt:'🎵'};
 let curPlatform='yt', curOrderSvc=null, curUserData=null, curTicketId=null;
+let _curUserBalance=0; // real-time balance cache
 
 function tagCls(t){
   if(t.includes('Lifetime')||t.includes('Natural')||t.includes('Premium'))return'tag-p';
@@ -657,7 +694,7 @@ function renderSvcs(p){
     <div class="service-card">
       <div class="svc-head">
         <div class="svc-name">${PEMOJI[p]} ${s.name}</div>
-        <div class="svc-price">৳ ${s.price.toLocaleString()}</div>
+        <div class="svc-price">৳ ${s.price.toLocaleString()}<span style="font-size:.65rem;color:var(--text3);font-weight:400">/1K</span></div>
       </div>
       <div class="svc-tags">
         ${s.tags.map(t=>`<span class="tag ${tagCls(t)}">${t}</span>`).join('')}
@@ -680,12 +717,10 @@ function showPage(pg){
     showNotif('Login Required','Please login first','red');
     pg='login';
   }
-  // Block admin if regular user logged in
   if(pg==='admin'&&auth.currentUser&&sessionStorage.getItem('adminLoggedIn')!=='true'){
     showNotif('Access Denied','Admin only! Use /#admin URL.','red');
     return;
   }
-  // Save page for refresh restore
   if(!['login','register','home'].includes(pg)){
     localStorage.setItem('currentPage', pg);
   }
@@ -711,6 +746,7 @@ function cm(){document.getElementById('mob-menu').classList.remove('open')}
 
 function setLoggedIn(userData){
   curUserData=userData;
+  _curUserBalance=userData.balance||0;
   ['nav-addfunds','nav-orders','nav-support','nav-bal','nav-profile','nav-logout'].forEach(id=>document.getElementById(id).style.display='flex');
   document.getElementById('nav-login').style.display='none';
   document.getElementById('nav-addfunds').style.display='inline-block';
@@ -725,7 +761,6 @@ function setLoggedIn(userData){
   document.getElementById('m-profile').style.display='block';
   document.getElementById('m-logout').style.display='block';
   document.getElementById('m-login').style.display='none';
-  // Hide admin button from regular users
   const na=document.getElementById('nav-admin');
   const ma=document.getElementById('m-admin');
   if(na) na.style.display='none';
@@ -734,6 +769,7 @@ function setLoggedIn(userData){
 }
 function setLoggedOut(){
   curUserData=null;
+  _curUserBalance=0;
   ['nav-addfunds','nav-orders','nav-support','nav-bal','nav-profile','nav-logout'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display='none';
@@ -746,13 +782,13 @@ function setLoggedOut(){
   document.getElementById('m-profile').style.display='none';
   document.getElementById('m-logout').style.display='none';
   document.getElementById('m-login').style.display='block';
-  // Show admin button when logged out
   const na=document.getElementById('nav-admin');
   const ma=document.getElementById('m-admin');
   if(na) na.style.display='inline-block';
   if(ma) ma.style.display='block';
 }
 function updateBalDisp(bal){
+  _curUserBalance=bal;
   document.getElementById('nav-bal-amt').textContent=bal.toLocaleString();
   document.getElementById('mob-bal-amt').textContent=bal.toLocaleString()+' BDT';
   if(curUserData) curUserData.balance=bal;
@@ -770,7 +806,6 @@ async function doLogin(){
   try{
     const email=username+'@bdfollower.app';
     await auth.signInWithEmailAndPassword(email,pass);
-    // onAuthStateChanged handles the rest
   }catch(e){
     btn.disabled=false; btn.textContent='Login';
     if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
@@ -796,7 +831,6 @@ async function doRegister(){
   if(pass!==pass2){showErr(errEl,'Passwords do not match');return;}
   btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Creating...';
   try{
-    // Check username taken
     const snap=await db.collection('usernames').doc(username).get();
     if(snap.exists){showErr(errEl,'Username already taken. Choose another.');btn.disabled=false;btn.textContent='Create Account';return;}
     const email=username+'@bdfollower.app';
@@ -805,7 +839,6 @@ async function doRegister(){
     const userData={name,username,phone,balance:0,totalSpent:0,cashback:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
     await db.collection('users').doc(uid).set(userData);
     await db.collection('usernames').doc(username).set({uid});
-    // onAuthStateChanged handles rest
   }catch(e){
     btn.disabled=false; btn.textContent='Create Account';
     if(e.code==='auth/email-already-in-use'){
@@ -823,10 +856,7 @@ async function doLogout(){
   showPage('home');
 }
 
-// Auth state listener
-// Auth state - persists on refresh
 let authReady=false;
-// Safety: hide loader after 4s max
 setTimeout(()=>{
   document.getElementById('page-loader').style.display='none';
   if(!authReady){ authReady=true; showPage('home'); }
@@ -852,7 +882,6 @@ auth.onAuthStateChanged(async user=>{
         } else if(!authReady){
           const saved=localStorage.getItem('currentPage')||'services';
           if(saved==='admin'){
-            // Restore admin page
             document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
             document.getElementById('page-admin').classList.add('active');
             if(sessionStorage.getItem('adminLoggedIn')==='true'){
@@ -883,7 +912,6 @@ auth.onAuthStateChanged(async user=>{
 
 // ======= REAL-TIME LISTENERS =======
 function startRealtimeListeners(uid){
-  // 1. User balance real-time
   db.collection('users').doc(uid).onSnapshot(doc=>{
     if(doc.exists){
       const data=doc.data();
@@ -898,25 +926,19 @@ function startRealtimeListeners(uid){
     }
   });
 
-  // 2. User orders real-time
   db.collection('orders').where('userId','==',uid).onSnapshot(snap=>{
     if(document.getElementById('page-orders').classList.contains('active')) loadOrders();
     if(document.getElementById('page-profile').classList.contains('active')) loadProfile();
   });
 
-  // 3. User tickets real-time
   db.collection('tickets').where('userId','==',uid).onSnapshot(snap=>{
     if(document.getElementById('page-support').classList.contains('active')) loadUserTickets();
   });
 
-  // 4. Admin - all orders real-time
   let _firstOrderSnap=true;
   db.collection('orders').onSnapshot(snap=>{
     const ad=document.getElementById('admin-dash');
-    if(ad&&ad.style.display==='block'){
-      loadAdminOrders();
-      loadAdminStats();
-    }
+    if(ad&&ad.style.display==='block'){loadAdminOrders();loadAdminStats();}
     if(_firstOrderSnap){_firstOrderSnap=false;return;}
     snap.docChanges().forEach(c=>{
       if(c.type==='added'){
@@ -927,14 +949,10 @@ function startRealtimeListeners(uid){
     });
   });
 
-  // 5. Admin - payments real-time
   let _firstPaySnap=true;
   db.collection('payments').onSnapshot(snap=>{
     const ad=document.getElementById('admin-dash');
-    if(ad&&ad.style.display==='block'){
-      loadAdminPayments();
-      loadAdminStats();
-    }
+    if(ad&&ad.style.display==='block'){loadAdminPayments();loadAdminStats();}
     if(_firstPaySnap){_firstPaySnap=false;return;}
     snap.docChanges().forEach(c=>{
       if(c.type==='added'){
@@ -945,40 +963,20 @@ function startRealtimeListeners(uid){
     });
   });
 
-  // 6. Admin - tickets real-time
   db.collection('tickets').onSnapshot(()=>{
     const ad=document.getElementById('admin-dash');
     if(ad&&ad.style.display==='block') loadAdminInbox();
   });
 
-  // 7. Admin - users real-time
   db.collection('users').onSnapshot(()=>{
     const ad=document.getElementById('admin-dash');
-    if(ad&&ad.style.display==='block'){
-      loadAdminUsers();
-      loadAdminStats();
-    }
+    if(ad&&ad.style.display==='block'){loadAdminUsers();loadAdminStats();}
   });
 }
 let _notifCount=0;
-function bumpNotifBadge(){
-  _notifCount++;
-  const b=document.getElementById('notif-badge');
-  if(b){b.style.display='flex';b.textContent=_notifCount;}
-}
-function clearAdminNotifs(){
-  _notifCount=0;
-  const b=document.getElementById('notif-badge');
-  if(b) b.style.display='none';
-}
-function showAdminToast(title,body){
-  const t=document.getElementById('admin-order-toast');
-  if(!t)return;
-  document.getElementById('toast-title').textContent=title;
-  document.getElementById('toast-body').textContent=body;
-  t.style.display='block';
-  setTimeout(()=>{t.style.display='none';},6000);
-}
+function bumpNotifBadge(){_notifCount++;const b=document.getElementById('notif-badge');if(b){b.style.display='flex';b.textContent=_notifCount;}}
+function clearAdminNotifs(){_notifCount=0;const b=document.getElementById('notif-badge');if(b) b.style.display='none';}
+function showAdminToast(title,body){const t=document.getElementById('admin-order-toast');if(!t)return;document.getElementById('toast-title').textContent=title;document.getElementById('toast-body').textContent=body;t.style.display='block';setTimeout(()=>{t.style.display='none';},6000);}
 
 // ======= PAYMENTS =======
 async function submitPayment(){
@@ -998,13 +996,9 @@ async function submitPayment(){
     const bonusAmt=currentBonus.bonusAmt||0;
     const totalAmount=bonusPct>0?(originalAmount+bonusAmt):originalAmount;
     await db.collection('payments').add({
-      userName:name,
-      amount:totalAmount,
-      originalAmount,
-      bonusPercentage:bonusPct,
-      bonusAmount:bonusAmt,
-      txn, userId:uid,
-      status:'pending',
+      userName:name, amount:totalAmount, originalAmount,
+      bonusPercentage:bonusPct, bonusAmount:bonusAmt,
+      txn, userId:uid, status:'pending',
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     currentBonus={pct:0,bonusAmt:0,total:0};
@@ -1025,20 +1019,15 @@ async function submitPayment(){
 
 async function approvePayment(payId, amount, userId){
   try{
-    // Add balance to user
     if(userId){
       const userRef=db.collection('users').doc(userId);
       let addAmount=amount;
-      // 5% cashback for 1000+ BDT
       if(amount>=1000){
         const cb=Math.round(amount*0.05);
         addAmount+=cb;
         showNotif('Cashback!',`৳ ${cb} cashback added to user`,'green');
       }
-      await userRef.update({
-        balance:firebase.firestore.FieldValue.increment(addAmount)
-      });
-      // Update live balance if it's the current user
+      await userRef.update({balance:firebase.firestore.FieldValue.increment(addAmount)});
       if(auth.currentUser&&auth.currentUser.uid===userId){
         const doc=await userRef.get();
         updateBalDisp(doc.data().balance);
@@ -1046,8 +1035,7 @@ async function approvePayment(payId, amount, userId){
     }
     await db.collection('payments').doc(payId).delete();
     showNotif('Approved!',`৳ ${amount} added to user balance`,'green');
-    loadAdminPayments();
-    loadAdminStats();
+    loadAdminPayments(); loadAdminStats();
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
@@ -1055,8 +1043,7 @@ async function rejectPayment(payId){
   try{
     await db.collection('payments').doc(payId).delete();
     showNotif('Rejected','Payment rejected','red');
-    loadAdminPayments();
-    loadAdminStats();
+    loadAdminPayments(); loadAdminStats();
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
@@ -1065,7 +1052,6 @@ function checkBonus(){
   const amt=parseFloat(document.getElementById('fund-amount').value)||0;
   const preview=document.getElementById('bonus-preview');
   if(amt>=500){
-    // Random bonus 1-5%
     const pct=Math.floor(Math.random()*5)+1;
     const bonusAmt=Math.round(amt*pct/100);
     const total=amt+bonusAmt;
@@ -1080,66 +1066,160 @@ function checkBonus(){
   }
 }
 
-// ======= ORDERS =======
+// ======= ORDER QUANTITY LOGIC (নতুন) =======
+
+/**
+ * Price per unit = svc.price / 1000
+ * Total cost = (svc.price / 1000) * qty
+ * Minimum qty = 100
+ */
+function calcCost(qty){
+  if(!curOrderSvc) return 0;
+  return Math.round((curOrderSvc.price / 1000) * qty);
+}
+
+function onQtyInput(){
+  const input=document.getElementById('order-qty');
+  const qty=parseInt(input.value)||0;
+  updateCostDisplay(qty);
+}
+
+function changeQty(delta){
+  const input=document.getElementById('order-qty');
+  let qty=(parseInt(input.value)||0)+delta;
+  if(qty<100) qty=100;
+  input.value=qty;
+  updateCostDisplay(qty);
+}
+
+function updateCostDisplay(qty){
+  const errEl=document.getElementById('qty-err');
+  const warnEl=document.getElementById('om-bal-warn');
+  const costEl=document.getElementById('om-total-cost');
+  const btn=document.getElementById('place-order-btn');
+
+  // Minimum check
+  if(qty<100){
+    errEl.style.display='block';
+    costEl.textContent='—';
+    btn.disabled=true;
+    warnEl.style.display='none';
+    return;
+  }
+  errEl.style.display='none';
+
+  const cost=calcCost(qty);
+  costEl.textContent='৳ '+cost.toLocaleString();
+
+  // Balance check — real-time
+  if(cost>_curUserBalance){
+    warnEl.style.display='block';
+    btn.disabled=true;
+  } else {
+    warnEl.style.display='none';
+    btn.disabled=false;
+  }
+}
+
 async function openOrderModal(svc){
   if(!auth.currentUser){showNotif('Login Required','Please login first','red');setTimeout(()=>showPage('login'),400);return;}
   curOrderSvc=svc;
-  // Get fresh balance
+
+  // Fresh balance from Firestore
   const doc=await db.collection('users').doc(auth.currentUser.uid).get();
   const bal=doc.data().balance||0;
   updateBalDisp(bal);
+
+  // Set modal fields
   document.getElementById('om-title').textContent=svc.name;
   document.getElementById('om-desc').textContent=svc.tags?svc.tags.join(' · '):'';
-  document.getElementById('om-price').textContent='৳ '+svc.price.toLocaleString();
+  document.getElementById('om-rate').textContent='৳ '+svc.price.toLocaleString();
   document.getElementById('om-bal').textContent='৳ '+bal.toLocaleString();
   document.getElementById('order-url').value='';
+
+  // Reset quantity to default 1000
+  document.getElementById('order-qty').value=1000;
+  document.getElementById('qty-err').style.display='none';
+  document.getElementById('om-bal-warn').style.display='none';
+  document.getElementById('place-order-btn').disabled=false;
+
+  // Show initial cost
+  updateCostDisplay(1000);
+
   showModal('order-modal');
 }
 
 async function placeOrder(){
   if(!curOrderSvc||!auth.currentUser)return;
+
+  const qty=parseInt(document.getElementById('order-qty').value)||0;
   const url=document.getElementById('order-url').value.trim();
+
+  // Validations
+  if(qty<100){
+    document.getElementById('qty-err').style.display='block';
+    showNotif('Error','Minimum 100 quantity required','red');
+    return;
+  }
   if(!url){showNotif('Error','Enter your profile/page URL','red');return;}
+
+  const finalCost=calcCost(qty);
+
   const btn=document.getElementById('place-order-btn');
   btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Placing...';
+
   try{
     const uid=auth.currentUser.uid;
     const userRef=db.collection('users').doc(uid);
     const doc=await userRef.get();
     const userData=doc.data();
     const bal=userData.balance||0;
-    if(bal<curOrderSvc.price){
+
+    // Final balance check (server-side confirm)
+    if(bal<finalCost){
       showNotif('Insufficient Balance','Add funds to continue','red');
+      document.getElementById('om-bal-warn').style.display='block';
       closeModal('order-modal');
       setTimeout(()=>showPage('addfunds'),400);
       btn.disabled=false; btn.textContent='Place Order';
       return;
     }
-    const newBal=bal-curOrderSvc.price;
-    const newSpent=(userData.totalSpent||0)+curOrderSvc.price;
+
+    const newBal=bal-finalCost;
+    const newSpent=(userData.totalSpent||0)+finalCost;
     let cashbackAdd=0;
-    // Cashback on 1000 BDT total spend milestone
     if(newSpent>=1000&&(userData.totalSpent||0)<1000){
       cashbackAdd=Math.round(newSpent*0.05);
     }
+
     await userRef.update({
       balance:newBal+cashbackAdd,
       totalSpent:newSpent,
       cashback:firebase.firestore.FieldValue.increment(cashbackAdd)
     });
-    // Create order
+
     const orderId='ORD'+Date.now();
     await db.collection('orders').doc(orderId).set({
       orderId, userId:uid, userName:userData.name,
-      service:curOrderSvc.name, price:curOrderSvc.price,
+      service:curOrderSvc.name,
+      quantity:qty,                    // নতুন: quantity save হচ্ছে
+      price:finalCost,                 // actual cost (quantity অনুযায়ী)
+      pricePerK:curOrderSvc.price,     // per-1000 rate reference
       url, status:'Processing',
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
+
     updateBalDisp(newBal+cashbackAdd);
     if(cashbackAdd>0) setTimeout(()=>showNotif('🎉 Cashback!',`৳ ${cashbackAdd} cashback added!`,'green'),600);
+
+    // Success modal message with qty info
+    document.getElementById('order-ok-msg').innerHTML=
+      `<strong style="color:var(--accent3)">${qty.toLocaleString()} followers</strong> — ৳${finalCost.toLocaleString()} deducted.<br>Now <strong style="color:var(--blue)">processing</strong>. Track it in My Orders.`;
+
     closeModal('order-modal');
     setTimeout(()=>showModal('order-ok-modal'),200);
     btn.disabled=false; btn.textContent='Place Order';
+
     if(document.getElementById('admin-dash').style.display==='block'){loadAdminOrders();loadAdminStats();}
   }catch(e){
     btn.disabled=false; btn.textContent='Place Order';
@@ -1168,10 +1248,11 @@ async function loadOrders(){
     list.innerHTML=docs.map(d=>{
       const o=d.data();
       const sc=o.status==='Completed'?'pill-completed':o.status==='Cancelled'?'pill-pending':'pill-processing';
+      const qtyBadge=o.quantity?`<span style="background:rgba(108,92,231,.12);color:var(--accent2);border:1px solid rgba(108,92,231,.2);border-radius:6px;padding:.1rem .45rem;font-size:.7rem;font-weight:600">${o.quantity.toLocaleString()} units</span>`:'';
       return`<div class="order-card">
         <div class="order-icon">📦</div>
         <div class="order-info">
-          <div class="order-svc">${o.service}</div>
+          <div class="order-svc">${o.service} ${qtyBadge}</div>
           <div class="order-meta">${o.orderId||'—'}</div>
         </div>
         <span class="pill ${sc}">${o.status||'Processing'}</span>
@@ -1180,10 +1261,9 @@ async function loadOrders(){
     }).join('');
   }catch(e){
     console.error('Orders error:',e);
-    list.innerHTML='<div style="color:var(--red);padding:1rem;text-align:center">'+e.message+'<br><small>Firebase এ index বানাতে হবে</small></div>';
+    list.innerHTML='<div style="color:var(--red);padding:1rem;text-align:center">'+e.message+'</div>';
   }
 }
-
 
 // ======= PROFILE =======
 async function loadProfile(){
@@ -1198,16 +1278,16 @@ async function loadProfile(){
     document.getElementById('pf-balance').textContent='৳ '+(u.balance||0).toLocaleString();
     document.getElementById('pf-spent').textContent=(u.totalSpent||0).toLocaleString();
     document.getElementById('pf-cashback').textContent=(u.cashback||0).toLocaleString();
-    // Orders
     const oSnap=await db.collection('orders').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').limit(5).get();
     document.getElementById('pf-orders').textContent=oSnap.size;
     const ol=document.getElementById('pf-orders-list');
     if(oSnap.empty){ol.innerHTML='<div style="color:var(--text2);text-align:center;padding:1.5rem">No orders yet.</div>';return;}
     ol.innerHTML=oSnap.docs.map(d=>{
       const o=d.data();
+      const qtyBadge=o.quantity?`<span style="background:rgba(108,92,231,.12);color:var(--accent2);border:1px solid rgba(108,92,231,.2);border-radius:6px;padding:.1rem .45rem;font-size:.7rem">${o.quantity.toLocaleString()} units</span>`:'';
       return`<div class="order-card">
         <div class="order-icon">📦</div>
-        <div class="order-info"><div class="order-svc">${o.service}</div><div class="order-meta">${o.orderId}</div></div>
+        <div class="order-info"><div class="order-svc">${o.service} ${qtyBadge}</div><div class="order-meta">${o.orderId}</div></div>
         <span class="pill ${o.status==='Completed'?'pill-completed':'pill-processing'}">${o.status}</span>
         <div class="order-amt">৳ ${o.price.toLocaleString()}</div>
       </div>`;
@@ -1272,7 +1352,6 @@ async function openUserTicket(tid){
     overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:250;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(10px)';
     overlay.innerHTML=`
       <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
-        <!-- Header -->
         <div style="padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
           <div>
             <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:1rem">${t.subject}</div>
@@ -1280,11 +1359,9 @@ async function openUserTicket(tid){
           </div>
           <button onclick="document.getElementById('ticket-overlay').remove()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:.35rem .75rem;cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif">✕ Close</button>
         </div>
-        <!-- Messages -->
         <div id="ticket-messages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem">
           <div id="ticket-msgs-inner">Loading...</div>
         </div>
-        <!-- Input -->
         <div style="padding:1rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:.5rem">
           <input type="text" id="ticket-reply-input" placeholder="Type a message..." style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:.65rem .875rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none" onkeydown="if(event.key==='Enter')sendUserReply('${tid}')">
           <button onclick="sendUserReply('${tid}')" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:.65rem 1.1rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;white-space:nowrap">Send</button>
@@ -1292,11 +1369,11 @@ async function openUserTicket(tid){
       </div>`;
     overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
     document.body.appendChild(overlay);
-    // Load messages
     loadTicketMessages(tid);
   }catch(e){console.error(e);}
 }
 
+let _chatListeners={};
 async function loadTicketMessages(tid){
   const el=document.getElementById('ticket-msgs-inner');
   if(!el)return;
@@ -1304,42 +1381,26 @@ async function loadTicketMessages(tid){
     const doc=await db.collection('tickets').doc(tid).get();
     const t=doc.data();
     const msgs=t.messages||[];
-
-    // Build messages - start with original message
     let allMsgs=[{from:'user', text:t.message}];
-
-    // Add old-style adminReply if exists and no messages array yet
-    if(t.adminReply && msgs.length===0){
-      allMsgs.push({from:'admin', text:t.adminReply});
-    }
-
-    // Add all messages from array
+    if(t.adminReply && msgs.length===0){ allMsgs.push({from:'admin', text:t.adminReply}); }
     msgs.forEach(m=>allMsgs.push(m));
-
     let html='';
     allMsgs.forEach(m=>{
       if(m.from==='admin'){
         html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.5rem">
           <div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:4px 16px 16px 16px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">
-            <div style="font-size:.7rem;color:var(--accent2);margin-bottom:.25rem;font-weight:600">💬 Admin</div>
-            ${m.text}
-          </div>
-        </div>`;
+            <div style="font-size:.7rem;color:var(--accent2);margin-bottom:.25rem;font-weight:600">💬 Admin</div>${m.text}
+          </div></div>`;
       } else {
         html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
           <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 4px 16px 16px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">${m.text}</div>
-        </div>`;
+          </div>`;
       }
     });
-
     el.innerHTML=html||'<div style="color:var(--text3);text-align:center;font-size:.84rem">No messages yet</div>';
     const msgDiv=document.getElementById('ticket-messages');
     if(msgDiv) msgDiv.scrollTop=msgDiv.scrollHeight;
-
-    // Real-time update for this ticket
-    db.collection('tickets').doc(tid).onSnapshot(snap=>{
-      if(snap.exists) loadTicketMessages(tid);
-    });
+    db.collection('tickets').doc(tid).onSnapshot(snap=>{if(snap.exists) loadTicketMessages(tid);});
   }catch(e){el.innerHTML='Error: '+e.message;}
 }
 
@@ -1350,18 +1411,13 @@ async function sendUserReply(tid){
   input.value='';
   try{
     await db.collection('tickets').doc(tid).update({
-      messages:firebase.firestore.FieldValue.arrayUnion({
-        from:'user',
-        text:text,
-        time:new Date().toISOString()
-      }),
+      messages:firebase.firestore.FieldValue.arrayUnion({from:'user',text,time:new Date().toISOString()}),
       status:'open',
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     loadTicketMessages(tid);
   }catch(e){console.error(e);}
 }
-
 
 // ======= ADMIN =======
 const ADMIN_PASS='TANBIR123tanbir';
@@ -1397,11 +1453,7 @@ function sd(sec,btn){
 }
 
 async function refreshAdminAll(){
-  loadAdminPayments();
-  loadAdminOrders();
-  loadAdminInbox();
-  loadAdminUsers();
-  loadAdminStats();
+  loadAdminPayments(); loadAdminOrders(); loadAdminInbox(); loadAdminUsers(); loadAdminStats();
 }
 
 async function loadAdminStats(){
@@ -1423,7 +1475,7 @@ async function loadAdminPayments(){
   const tb=document.getElementById('admin-pay-tb');
   try{
     const snap=await db.collection('payments').orderBy('createdAt','desc').get();
-    if(snap.empty){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">No pending payments ✓</td></tr>';return;}
+    if(snap.empty){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">No pending payments ✓</td></tr>';return;}
     tb.innerHTML=snap.docs.map(d=>{
       const p=d.data(); const pid=d.id;
       const t=p.createdAt?new Date(p.createdAt.seconds*1000).toLocaleString():'Just now';
@@ -1440,21 +1492,24 @@ async function loadAdminPayments(){
         </td>
       </tr>`;
     }).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="5" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
+  }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
 }
 
 async function loadAdminOrders(){
   const tb=document.getElementById('admin-ord-tb');
   try{
     const snap=await db.collection('orders').orderBy('createdAt','desc').get();
-    if(snap.empty){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">No orders yet</td></tr>';return;}
+    if(snap.empty){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1.75rem">No orders yet</td></tr>';return;}
     tb.innerHTML=snap.docs.map(d=>{
       const o=d.data(); const oid=d.id;
       const sc=o.status==='Completed'?'pill-completed':o.status==='Cancelled'?'pill-pending':'pill-processing';
+      // Quantity badge for admin
+      const qtyCell=o.quantity?`<span style="font-family:'Syne',sans-serif;font-weight:600;color:var(--accent2)">${o.quantity.toLocaleString()}</span>`:'-';
       return`<tr>
         <td style="font-family:monospace;font-size:.77rem">${o.orderId||oid}</td>
         <td>${o.userName}</td>
-        <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.service}</td>
+        <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.service}</td>
+        <td>${qtyCell}</td>
         <td style="color:var(--accent3)">৳ ${o.price.toLocaleString()}</td>
         <td><span class="pill ${sc}">${o.status}</span></td>
         <td>
@@ -1467,7 +1522,7 @@ async function loadAdminOrders(){
         </td>
       </tr>`;
     }).join('');
-  }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
+  }catch(e){tb.innerHTML='<tr><td colspan="7" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
 }
 
 async function updateOrderStatus(orderId, newStatus){
@@ -1506,14 +1561,12 @@ async function openAdminTicket(tid){
     document.getElementById('reply-from').textContent='User: '+t.userName;
     document.getElementById('reply-msg-txt').textContent=t.message;
     document.getElementById('admin-reply').value='';
-    // Load chat messages in admin panel
     loadAdminChatMessages(tid);
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
 async function loadAdminChatMessages(tid){
   if(_chatListeners['admin_'+tid]) _chatListeners['admin_'+tid]();
-  // Show chat history in reply-msg-txt area
   _chatListeners['admin_'+tid]=db.collection('tickets').doc(tid).collection('messages')
     .orderBy('createdAt','asc')
     .onSnapshot(snap=>{
@@ -1527,8 +1580,7 @@ async function loadAdminChatMessages(tid){
           <span style="display:inline-block;background:${isAdmin?'rgba(108,92,231,.2)':'var(--bg3)'};padding:.4rem .75rem;border-radius:10px;font-size:.82rem;max-width:85%">
             <span style="font-size:.7rem;color:${isAdmin?'var(--accent2)':'var(--text3)'};display:block;margin-bottom:.15rem">${isAdmin?'You (Admin)':'User'}</span>
             ${m.text}
-          </span>
-        </div>`;
+          </span></div>`;
       }).join('');
       el.scrollTop=el.scrollHeight;
     });
@@ -1539,15 +1591,12 @@ async function sendReply(){
   if(!r){showNotif('Error','Type a reply first','red');return;}
   try{
     if(curTicketId){
-      // Send as chat message
       await db.collection('tickets').doc(curTicketId).collection('messages').add({
         text:r, senderId:'admin', senderName:'Admin',
         createdAt:firebase.firestore.FieldValue.serverTimestamp()
       });
-      // Update ticket - keep open so conversation continues
       await db.collection('tickets').doc(curTicketId).update({
-        adminReply:r,
-        status:'open',
+        adminReply:r, status:'open',
         updatedAt:firebase.firestore.FieldValue.serverTimestamp()
       });
     }
@@ -1595,14 +1644,12 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 // Init
 renderSvcs('yt');
 
-// Restore admin session on refresh
 if(sessionStorage.getItem('adminLoggedIn')==='true'){
   document.getElementById('admin-login-sc').style.display='none';
   document.getElementById('admin-dash').style.display='block';
   setTimeout(()=>refreshAdminAll(),1500);
 }
 
-// Secret URL: bdfollower.vercel.app/#admin
 function checkHashAdmin(){
   if(window.location.hash==='#admin'){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
