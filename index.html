@@ -1216,17 +1216,56 @@ async function loadUserTickets(){
   if(!auth.currentUser)return;
   const el=document.getElementById('user-tickets');
   try{
-    const snap=await db.collection('tickets').where('userId','==',auth.currentUser.uid).orderBy('createdAt','desc').get();
+    const snap=await db.collection('tickets').where('userId','==',auth.currentUser.uid).get();
     if(snap.empty){el.innerHTML='<div style="color:var(--text3);font-size:.84rem">No tickets yet.</div>';return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const t=d.data();
-      return`<div class="ticket-item ${t.status==='open'?'unread':''}">
-        <div class="ticket-head"><span style="font-weight:500;font-size:.875rem">${t.subject}</span><span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.status==='open'?'Open':'Closed'}</span></div>
-        <div style="font-size:.8rem;color:var(--text2)">${t.message.slice(0,60)}...</div>
+    const docs=snap.docs.sort((a,b)=>{
+      const at=a.data().createdAt, bt=b.data().createdAt;
+      if(!at||!bt) return 0;
+      return bt.seconds-at.seconds;
+    });
+    el.innerHTML=docs.map(d=>{
+      const t=d.data(); const tid=d.id;
+      const hasReply=!!t.adminReply;
+      return`<div class="ticket-item ${t.status==='open'?'unread':''}" onclick="openUserTicket('${tid}')" style="cursor:pointer">
+        <div class="ticket-head">
+          <span style="font-weight:500;font-size:.875rem">${t.subject}</span>
+          <span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.status==='open'?'Open':'Replied'}</span>
+        </div>
+        <div style="font-size:.8rem;color:var(--text2);margin-bottom:${hasReply?'.4rem':'0'}">${t.message.slice(0,60)}...</div>
+        ${hasReply?`<div style="background:rgba(108,92,231,.1);border-left:3px solid var(--accent2);padding:.4rem .75rem;border-radius:0 6px 6px 0;font-size:.78rem;color:var(--accent2)">💬 Admin: ${t.adminReply.slice(0,60)}...</div>`:''}
       </div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
+
+async function openUserTicket(tid){
+  try{
+    const doc=await db.collection('tickets').doc(tid).get();
+    const t=doc.data();
+    const overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(8px)';
+    overlay.innerHTML=`
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.75rem;max-width:500px;width:100%;max-height:80vh;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:.5rem">
+          <h3 style="font-size:1rem;font-family:'Syne',sans-serif">${t.subject}</h3>
+          <span class="pill ${t.status==='open'?'pill-open':'pill-closed'}">${t.status==='open'?'Open':'Replied'}</span>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:.875rem;color:var(--text2);line-height:1.6">
+          <div style="font-size:.72rem;color:var(--text3);margin-bottom:.4rem;font-weight:500">YOUR MESSAGE</div>
+          ${t.message}
+        </div>
+        ${t.adminReply?`
+        <div style="background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.25);border-radius:10px;padding:1rem;margin-bottom:1rem;line-height:1.6">
+          <div style="font-size:.72rem;color:var(--accent2);margin-bottom:.4rem;font-weight:600">💬 ADMIN REPLY</div>
+          <div style="font-size:.875rem;color:var(--text)">${t.adminReply}</div>
+        </div>`:'<div style="color:var(--text3);font-size:.84rem;margin-bottom:1rem;text-align:center;padding:.75rem;background:var(--bg3);border-radius:8px">⏳ Waiting for admin reply...</div>'}
+        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:.7rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem">Close</button>
+      </div>`;
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+    document.body.appendChild(overlay);
+  }catch(e){console.error(e);}
+}
+
 
 // ======= ADMIN =======
 const ADMIN_PASS='TANBIR123tanbir';
@@ -1363,14 +1402,23 @@ async function openAdminTicket(tid){
   try{
     const doc=await db.collection('tickets').doc(tid).get();
     const t=doc.data();
-    await db.collection('tickets').doc(tid).update({status:'closed'});
+    // Don't auto-close - only close when reply sent
     const panel=document.getElementById('reply-panel');
     panel.style.display='block';
     document.getElementById('reply-subj').textContent=t.subject;
     document.getElementById('reply-from').textContent='From: '+t.userName;
     document.getElementById('reply-msg-txt').textContent=t.message;
+    // Show existing reply if any
+    const existReply=document.getElementById('existing-reply');
+    if(existReply) existReply.remove();
+    if(t.adminReply){
+      const div=document.createElement('div');
+      div.id='existing-reply';
+      div.style.cssText='background:rgba(108,92,231,.1);border-radius:8px;padding:.75rem;margin-bottom:.75rem;font-size:.82rem;color:var(--accent2)';
+      div.textContent='Previous reply: '+t.adminReply;
+      document.getElementById('reply-msg-txt').after(div);
+    }
     document.getElementById('admin-reply').value='';
-    loadAdminInbox();
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
@@ -1379,11 +1427,19 @@ async function sendReply(){
   if(!r){showNotif('Error','Type a reply first','red');return;}
   try{
     if(curTicketId){
-      await db.collection('tickets').doc(curTicketId).update({adminReply:r,status:'closed'});
+      await db.collection('tickets').doc(curTicketId).update({
+        adminReply:r,
+        status:'closed',
+        repliedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
     document.getElementById('admin-reply').value='';
     document.getElementById('reply-panel').style.display='none';
-    showNotif('Reply Sent!','Reply sent to user','green');
+    const existReply=document.getElementById('existing-reply');
+    if(existReply) existReply.remove();
+    curTicketId=null;
+    showNotif('Reply Sent!','User will see your reply','green');
+    loadAdminInbox();
   }catch(e){showNotif('Error',e.message,'red');}
 }
 
