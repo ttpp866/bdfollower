@@ -1279,30 +1279,43 @@ async function loadTicketMessages(tid){
     const doc=await db.collection('tickets').doc(tid).get();
     const t=doc.data();
     const msgs=t.messages||[];
-    // Build initial message + all replies
-    let html=`
-      <div style="display:flex;justify-content:flex-end;margin-bottom:.25rem">
-        <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 16px 4px 16px;padding:.65rem 1rem;max-width:80%;font-size:.875rem;line-height:1.5">${t.message}</div>
-      </div>`;
-    msgs.forEach(m=>{
+
+    // Build messages - start with original message
+    let allMsgs=[{from:'user', text:t.message}];
+
+    // Add old-style adminReply if exists and no messages array yet
+    if(t.adminReply && msgs.length===0){
+      allMsgs.push({from:'admin', text:t.adminReply});
+    }
+
+    // Add all messages from array
+    msgs.forEach(m=>allMsgs.push(m));
+
+    let html='';
+    allMsgs.forEach(m=>{
       if(m.from==='admin'){
-        html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.25rem">
-          <div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:16px 16px 16px 4px;padding:.65rem 1rem;max-width:80%;font-size:.875rem;line-height:1.5">
-            <div style="font-size:.7rem;color:var(--accent2);margin-bottom:.25rem;font-weight:600">Admin</div>
+        html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.5rem">
+          <div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:4px 16px 16px 16px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">
+            <div style="font-size:.7rem;color:var(--accent2);margin-bottom:.25rem;font-weight:600">💬 Admin</div>
             ${m.text}
           </div>
         </div>`;
       } else {
-        html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.25rem">
-          <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 16px 4px 16px;padding:.65rem 1rem;max-width:80%;font-size:.875rem;line-height:1.5">${m.text}</div>
+        html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+          <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 4px 16px 16px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">${m.text}</div>
         </div>`;
       }
     });
-    el.innerHTML=html;
-    // Scroll to bottom
+
+    el.innerHTML=html||'<div style="color:var(--text3);text-align:center;font-size:.84rem">No messages yet</div>';
     const msgDiv=document.getElementById('ticket-messages');
     if(msgDiv) msgDiv.scrollTop=msgDiv.scrollHeight;
-  }catch(e){el.innerHTML='Error loading messages';}
+
+    // Real-time update for this ticket
+    db.collection('tickets').doc(tid).onSnapshot(snap=>{
+      if(snap.exists) loadTicketMessages(tid);
+    });
+  }catch(e){el.innerHTML='Error: '+e.message;}
 }
 
 async function sendUserReply(tid){
