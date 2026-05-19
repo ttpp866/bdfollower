@@ -478,6 +478,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="dash-sidebar-inner">
           <button class="dnav active" onclick="sd('payments',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Payments</button>
           <button class="dnav" onclick="sd('orders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Orders</button>
+          <button class="dnav" onclick="sd('services-mgmt',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h-2M6 12H4M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20v-2M12 6V4"/></svg>Services</button>
           <button class="dnav" onclick="sd('inbox',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Inbox</button>
           <button class="dnav" onclick="sd('users',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Users</button>
         </div>
@@ -506,6 +507,78 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div class="table-wrap">
             <table><thead><tr><th>Order ID</th><th>User</th><th>Service</th><th>Amount</th><th>Status</th><th>Change Status</th></tr></thead>
             <tbody id="admin-ord-tb"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+
+        <!-- SERVICES MANAGEMENT -->
+        <div class="dash-section" id="dash-services-mgmt">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+            <h2 style="font-size:1.05rem">⚙️ Manage Services</h2>
+            <button class="submit-btn" onclick="toggleAddSvcForm()" style="width:auto;padding:.5rem 1.1rem;font-size:.82rem;margin:0">+ Add Service</button>
+          </div>
+          <!-- Add/Edit Form -->
+          <div id="svc-form-wrap" style="display:none;margin-bottom:1.25rem">
+            <div class="card" style="padding:1.25rem">
+              <h3 style="font-size:.95rem;margin-bottom:1rem" id="svc-form-title">Add New Service</h3>
+              <input type="hidden" id="edit-svc-id">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem">
+                <div class="fg" style="margin:0"><label>Service Name</label><input type="text" id="svc-name-input" placeholder="1K YouTube Subs — HQ"></div>
+                <div class="fg" style="margin:0"><label>Platform</label>
+                  <select id="svc-platform-input">
+                    <option value="yt">▶️ YouTube</option>
+                    <option value="fb">📘 Facebook</option>
+                    <option value="li">💼 LinkedIn</option>
+                    <option value="ig">📸 Instagram</option>
+                    <option value="tt">🎵 TikTok</option>
+                  </select>
+                </div>
+                <div class="fg" style="margin:0"><label>Price per 1,000 (BDT)</label><input type="number" id="svc-price-input" placeholder="999"></div>
+                <div class="fg" style="margin:0"><label>Ticket ID</label><input type="text" id="svc-ticket-input" placeholder="1603"></div>
+                <div class="fg" style="margin:0;grid-column:1/-1"><label>Tags (comma separated)</label><input type="text" id="svc-tags-input" placeholder="HQ, 30 Days Refill, 0–5% Drop"></div>
+              </div>
+              <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+                <button class="submit-btn" onclick="saveSvcToFirestore()" style="width:auto;padding:.6rem 1.4rem;font-size:.875rem;margin:0">Save</button>
+                <button class="btn btn-outline" onclick="toggleAddSvcForm()" style="font-size:.875rem">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <!-- Services Table -->
+          <div class="table-wrap">
+            <table><thead><tr><th>Platform</th><th>Service Name</th><th>Price/1K</th><th>Tags</th><th>Actions</th></tr></thead>
+            <tbody id="admin-svc-table"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+
+        <!-- SERVICES MANAGEMENT -->
+        <div class="dash-section" id="dash-services-admin">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+            <h2 style="font-size:1.05rem">⚙️ Manage Services</h2>
+            <button class="submit-btn" style="width:auto;padding:.5rem 1.1rem;font-size:.82rem;border-radius:10px;margin:0" onclick="toggleAddSvcForm()">+ Add Service</button>
+          </div>
+          <!-- Add/Edit Form -->
+          <div id="svc-form" style="display:none;background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;backdrop-filter:blur(16px);box-shadow:var(--shadow)">
+            <h3 style="font-size:.95rem;margin-bottom:1rem" id="svc-form-title">Add New Service</h3>
+            <input type="hidden" id="svc-edit-id">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+              <div class="fg" style="margin:0"><label>Service Name</label><input type="text" id="svc-name" placeholder="1K YouTube Subs"></div>
+              <div class="fg" style="margin:0"><label>Platform</label>
+                <select id="svc-platform">
+                  <option>YouTube</option><option>Facebook</option><option>LinkedIn</option><option>Instagram</option><option>TikTok</option>
+                </select>
+              </div>
+              <div class="fg" style="margin:0"><label>Price per 1K (BDT)</label><input type="number" id="svc-price" placeholder="999"></div>
+              <div class="fg" style="margin:0"><label>Ticket ID</label><input type="text" id="svc-ticket" placeholder="1603"></div>
+              <div class="fg" style="margin:0;grid-column:1/-1"><label>Tags (comma separated)</label><input type="text" id="svc-tags" placeholder="HQ, 30 Days Refill, 0-5% Drop"></div>
+            </div>
+            <div style="display:flex;gap:.65rem;margin-top:.875rem">
+              <button class="submit-btn" style="width:auto;padding:.6rem 1.5rem;font-size:.875rem;margin:0" onclick="saveService()">Save Service</button>
+              <button class="btn btn-outline" style="font-size:.875rem" onclick="toggleAddSvcForm()">Cancel</button>
+            </div>
+          </div>
+          <!-- Services Table -->
+          <div class="table-wrap">
+            <table><thead><tr><th>Platform</th><th>Service Name</th><th>Price/1K</th><th>Tags</th><th>Actions</th></tr></thead>
+            <tbody id="admin-svc-tb"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">Loading services...</td></tr></tbody></table>
           </div>
         </div>
 
@@ -561,14 +634,32 @@ tr:hover td{background:rgba(255,255,255,.015)}
   <div class="order-modal">
     <h3 style="margin-bottom:.25rem;font-size:1.1rem" id="om-title">Order Service</h3>
     <p style="color:var(--text2);font-size:.8rem;margin-bottom:1rem" id="om-desc"></p>
-    <div style="background:var(--bg3);border-radius:10px;padding:.8rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--text2);font-size:.875rem">Cost:</span>
-      <span style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent3)" id="om-price">0 BDT</span>
+
+    <!-- Price per 1000 -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.85rem">Price per 1,000:</span>
+      <span style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--accent2)" id="om-price-per">0 BDT</span>
     </div>
-    <div style="background:var(--bg3);border-radius:10px;padding:.8rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--text2);font-size:.875rem">Your Balance:</span>
+
+    <!-- Quantity Input -->
+    <div class="fg">
+      <label>Quantity <span style="color:var(--text3)">(minimum 100)</span></label>
+      <input type="number" id="order-qty" placeholder="e.g. 500" min="100" step="100" oninput="calcOrderCost()">
+      <div id="qty-error" style="display:none;color:var(--red);font-size:.78rem;margin-top:.3rem">⚠️ Minimum order is 100</div>
+    </div>
+
+    <!-- Total Cost -->
+    <div style="background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.15);border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.85rem">Total Cost:</span>
+      <span style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--accent3)" id="om-total-cost">0 BDT</span>
+    </div>
+
+    <!-- Balance -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:.85rem">Your Balance:</span>
       <span style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;color:var(--green)" id="om-bal">0 BDT</span>
     </div>
+
     <div class="fg"><label>Your Profile / Page URL</label><input type="url" id="order-url" placeholder="https://youtube.com/channel/..."></div>
     <div style="display:flex;gap:.6rem">
       <button class="submit-btn" id="place-order-btn" onclick="placeOrder()" style="flex:1">Place Order</button>
@@ -670,7 +761,7 @@ function showPlatform(p,btn){
   curPlatform=p;
   document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  renderSvcs(p);
+  loadServicesFromFirestore(p);
 }
 
 // ======= NAV =======
@@ -1084,41 +1175,62 @@ function checkBonus(){
 async function openOrderModal(svc){
   if(!auth.currentUser){showNotif('Login Required','Please login first','red');setTimeout(()=>showPage('login'),400);return;}
   curOrderSvc=svc;
-  // Get fresh balance
   const doc=await db.collection('users').doc(auth.currentUser.uid).get();
   const bal=doc.data().balance||0;
   updateBalDisp(bal);
   document.getElementById('om-title').textContent=svc.name;
   document.getElementById('om-desc').textContent=svc.tags?svc.tags.join(' · '):'';
-  document.getElementById('om-price').textContent='৳ '+svc.price.toLocaleString();
+  document.getElementById('om-price-per').textContent='৳ '+svc.price.toLocaleString();
   document.getElementById('om-bal').textContent='৳ '+bal.toLocaleString();
+  document.getElementById('om-total').textContent='0 BDT';
   document.getElementById('order-url').value='';
+  document.getElementById('order-qty').value='';
+  const qerr=document.getElementById('qty-error');
+  if(qerr) qerr.style.display='none';
   showModal('order-modal');
 }
+
+function calcOrderTotal(){
+  if(!curOrderSvc) return;
+  const qty=parseInt(document.getElementById('order-qty').value)||0;
+  const errEl=document.getElementById('qty-error');
+  if(qty>0&&qty<100){
+    errEl.style.display='block';
+    document.getElementById('om-total').textContent='0 BDT';
+    return;
+  }
+  errEl.style.display='none';
+  if(qty===0){document.getElementById('om-total').textContent='0 BDT';return;}
+  const total=Math.round((curOrderSvc.price/1000)*qty);
+  document.getElementById('om-total').textContent='৳ '+total.toLocaleString();
+}
+
 
 async function placeOrder(){
   if(!curOrderSvc||!auth.currentUser)return;
   const url=document.getElementById('order-url').value.trim();
+  const qty=parseInt(document.getElementById('order-qty').value)||0;
   if(!url){showNotif('Error','Enter your profile/page URL','red');return;}
+  if(qty<100){showNotif('Error','Minimum order quantity is 100','red');return;}
+  const totalCost=Math.round((curOrderSvc.price/1000)*qty);
   const btn=document.getElementById('place-order-btn');
   btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Placing...';
   try{
     const uid=auth.currentUser.uid;
     const userRef=db.collection('users').doc(uid);
-    const doc=await userRef.get();
-    const userData=doc.data();
+    const docSnap=await userRef.get();
+    const userData=docSnap.data();
     const bal=userData.balance||0;
-    if(bal<curOrderSvc.price){
-      showNotif('Insufficient Balance','Add funds to continue','red');
+    if(bal<totalCost){
+      showNotif('Insufficient Balance',`Need ৳${totalCost.toLocaleString()}, have ৳${bal.toLocaleString()}`,'red');
       closeModal('order-modal');
       setTimeout(()=>showPage('addfunds'),400);
       btn.disabled=false; btn.textContent='Place Order';
       return;
     }
-    const newBal=bal-curOrderSvc.price;
-    const newSpent=(userData.totalSpent||0)+curOrderSvc.price;
+    const newBal=bal-totalCost;
+    const newSpent=(userData.totalSpent||0)+totalCost;
     let cashbackAdd=0;
-    // Cashback on 1000 BDT total spend milestone
     if(newSpent>=1000&&(userData.totalSpent||0)<1000){
       cashbackAdd=Math.round(newSpent*0.05);
     }
@@ -1127,12 +1239,14 @@ async function placeOrder(){
       totalSpent:newSpent,
       cashback:firebase.firestore.FieldValue.increment(cashbackAdd)
     });
-    // Create order
     const orderId='ORD'+Date.now();
     await db.collection('orders').doc(orderId).set({
-      orderId, userId:uid, userName:userData.name,
-      service:curOrderSvc.name, price:curOrderSvc.price,
-      url, status:'Processing',
+      orderId,userId:uid,userName:userData.name,
+      service:curOrderSvc.name,
+      quantity:qty,
+      price:totalCost,
+      pricePerK:curOrderSvc.price,
+      url,status:'Processing',
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     updateBalDisp(newBal+cashbackAdd);
@@ -1140,12 +1254,12 @@ async function placeOrder(){
     closeModal('order-modal');
     setTimeout(()=>showModal('order-ok-modal'),200);
     btn.disabled=false; btn.textContent='Place Order';
-    if(document.getElementById('admin-dash').style.display==='block'){loadAdminOrders();loadAdminStats();}
   }catch(e){
     btn.disabled=false; btn.textContent='Place Order';
     showNotif('Error',e.message,'red');
   }
 }
+
 
 async function loadOrders(){
   if(!auth.currentUser){
@@ -1271,14 +1385,14 @@ async function openUserTicket(tid){
     overlay.id='ticket-overlay';
     overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:250;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(10px)';
     overlay.innerHTML=`
-      <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+      <div style="background:rgba(22,25,33,0.92);border:1px solid var(--glass-border);border-radius:24px;width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;backdrop-filter:blur(24px);box-shadow:var(--shadow)">
         <!-- Header -->
-        <div style="padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="padding:1.1rem 1.25rem;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
           <div>
             <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:1rem">${t.subject}</div>
             <div style="font-size:.72rem;color:var(--text3);margin-top:.1rem">Support Ticket</div>
           </div>
-          <button onclick="document.getElementById('ticket-overlay').remove()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:.35rem .75rem;cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif">✕ Close</button>
+          <button onclick="if(_ticketListener){_ticketListener();_ticketListener=null;}document.getElementById('ticket-overlay').remove()" style="background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:8px;color:var(--text2);padding:.35rem .75rem;cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif">✕ Close</button>
         </div>
         <!-- Messages -->
         <div id="ticket-messages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem">
@@ -1297,50 +1411,85 @@ async function openUserTicket(tid){
   }catch(e){console.error(e);}
 }
 
+// Track active ticket listener
+let _ticketListener=null;
+
+function renderTicketMsgs(t){
+  const el=document.getElementById('ticket-msgs-inner');
+  if(!el) return;
+  const msgs=t.messages||[];
+  let allMsgs=[{from:'user',text:t.message}];
+  if(t.adminReply&&msgs.length===0) allMsgs.push({from:'admin',text:t.adminReply});
+  msgs.forEach(m=>{if(m&&m.text) allMsgs.push(m);});
+  let html='';
+  allMsgs.forEach(m=>{
+    if(!m||!m.text) return;
+    if(m.from==='admin'){
+      html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.6rem">
+        <div style="background:rgba(255,255,255,.06);border:1px solid var(--glass-border);color:var(--text);border-radius:4px 18px 18px 18px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">
+          <div style="font-size:.68rem;color:var(--accent2);margin-bottom:.2rem;font-weight:600">💬 Admin</div>
+          ${m.text}
+        </div>
+      </div>`;
+    } else {
+      html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.6rem">
+        <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:18px 4px 18px 18px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">${m.text}</div>
+      </div>`;
+    }
+  });
+  el.innerHTML=html||'<div style="color:var(--text3);text-align:center;font-size:.84rem;padding:1rem">Start the conversation...</div>';
+  const msgDiv=document.getElementById('ticket-messages');
+  if(msgDiv) msgDiv.scrollTop=msgDiv.scrollHeight;
+}
+
 async function loadTicketMessages(tid){
   const el=document.getElementById('ticket-msgs-inner');
   if(!el)return;
-  try{
-    const doc=await db.collection('tickets').doc(tid).get();
-    const t=doc.data();
+  el.innerHTML='<div style="color:var(--text3);text-align:center;font-size:.84rem">Loading...</div>';
+  // Cancel previous listener
+  if(_ticketListener){_ticketListener();_ticketListener=null;}
+  
+  // Use onSnapshot for real-time
+  _ticketListener=db.collection('tickets').doc(tid).onSnapshot(snap=>{
+    if(!snap.exists)return;
+    const t=snap.data();
     const msgs=t.messages||[];
-
-    // Build messages - start with original message
-    let allMsgs=[{from:'user', text:t.message}];
-
-    // Add old-style adminReply if exists and no messages array yet
-    if(t.adminReply && msgs.length===0){
-      allMsgs.push({from:'admin', text:t.adminReply});
+    
+    // Build all messages: original + array messages
+    let allMsgs=[{from:'user', text:t.message, time:null}];
+    
+    // If adminReply exists but not in messages array (old format), add it
+    if(t.adminReply){
+      const alreadyIn=msgs.some(m=>m.from==='admin'&&m.text===t.adminReply);
+      if(!alreadyIn) allMsgs.push({from:'admin',text:t.adminReply,time:null});
     }
-
-    // Add all messages from array
+    
     msgs.forEach(m=>allMsgs.push(m));
-
+    
+    const el2=document.getElementById('ticket-msgs-inner');
+    if(!el2)return;
+    
     let html='';
     allMsgs.forEach(m=>{
       if(m.from==='admin'){
-        html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.5rem">
-          <div style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:4px 16px 16px 16px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">
-            <div style="font-size:.7rem;color:var(--accent2);margin-bottom:.25rem;font-weight:600">💬 Admin</div>
+        html+=`<div style="display:flex;justify-content:flex-start;margin-bottom:.6rem;align-items:flex-end;gap:.4rem">
+          <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0">A</div>
+          <div style="background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);color:var(--text);border-radius:4px 18px 18px 18px;padding:.65rem 1rem;max-width:78%;font-size:.875rem;line-height:1.5">
+            <div style="font-size:.68rem;color:var(--accent2);margin-bottom:.2rem;font-weight:600">Admin Support</div>
             ${m.text}
           </div>
         </div>`;
       } else {
-        html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
-          <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 4px 16px 16px;padding:.65rem 1rem;max-width:82%;font-size:.875rem;line-height:1.5">${m.text}</div>
+        html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:.6rem">
+          <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:18px 4px 18px 18px;padding:.65rem 1rem;max-width:78%;font-size:.875rem;line-height:1.5">${m.text}</div>
         </div>`;
       }
     });
-
-    el.innerHTML=html||'<div style="color:var(--text3);text-align:center;font-size:.84rem">No messages yet</div>';
+    
+    el2.innerHTML=html||'<div style="color:var(--text3);text-align:center;font-size:.84rem;padding:1rem">Send a message to start</div>';
     const msgDiv=document.getElementById('ticket-messages');
     if(msgDiv) msgDiv.scrollTop=msgDiv.scrollHeight;
-
-    // Real-time update for this ticket
-    db.collection('tickets').doc(tid).onSnapshot(snap=>{
-      if(snap.exists) loadTicketMessages(tid);
-    });
-  }catch(e){el.innerHTML='Error: '+e.message;}
+  });
 }
 
 async function sendUserReply(tid){
@@ -1348,6 +1497,7 @@ async function sendUserReply(tid){
   const text=input?input.value.trim():'';
   if(!text)return;
   input.value='';
+  input.focus();
   try{
     await db.collection('tickets').doc(tid).update({
       messages:firebase.firestore.FieldValue.arrayUnion({
@@ -1358,8 +1508,8 @@ async function sendUserReply(tid){
       status:'open',
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    loadTicketMessages(tid);
-  }catch(e){console.error(e);}
+    // onSnapshot will auto-update the chat
+  }catch(e){showNotif('Error','Could not send message','red');}
 }
 
 
@@ -1399,6 +1549,7 @@ function sd(sec,btn){
 async function refreshAdminAll(){
   loadAdminPayments();
   loadAdminOrders();
+  loadAdminServices();
   loadAdminInbox();
   loadAdminUsers();
   loadAdminStats();
@@ -1485,11 +1636,18 @@ async function loadAdminInbox(){
     if(snap.empty){el.innerHTML='<div style="color:var(--text3);font-size:.84rem">No tickets yet</div>';return;}
     el.innerHTML=snap.docs.map(d=>{
       const t=d.data(); const tid=d.id;
-      const sc=t.status==='open'?'pill-open':'pill-closed';
-      return`<div class="ticket-item ${t.status==='open'?'unread':''}" onclick="openAdminTicket('${tid}')">
-        <div class="ticket-head"><span style="font-weight:500;font-size:.875rem">${t.subject}</span><span class="pill ${sc}">${t.status==='open'?'Open':'Closed'}</span></div>
-        <div style="font-size:.75rem;color:var(--text3);margin-bottom:.25rem">${t.userName}</div>
-        <div style="font-size:.8rem;color:var(--text2)">${t.message.slice(0,50)}...</div>
+      const isOpen=t.status==='open';
+      const msgCount=t.messages?t.messages.length:0;
+      return`<div class="ticket-item ${isOpen?'unread':''}" onclick="openAdminTicket('${tid}')">
+        <div class="ticket-head">
+          <span style="font-weight:500;font-size:.875rem">${t.subject}</span>
+          <div style="display:flex;gap:.35rem;align-items:center">
+            ${msgCount>0?`<span style="font-size:.7rem;color:var(--text3)">${msgCount} msgs</span>`:''}
+            <span class="pill ${isOpen?'pill-open':'pill-closed'}">${isOpen?'Open':'Closed'}</span>
+          </div>
+        </div>
+        <div style="font-size:.74rem;color:var(--text3);margin-bottom:.2rem">${t.userName}</div>
+        <div style="font-size:.8rem;color:var(--text2)">${(t.message||'').slice(0,45)}...</div>
       </div>`;
     }).join('');
   }catch(e){el.innerHTML='<div style="color:var(--red);font-size:.84rem">Error loading</div>';}
@@ -1534,6 +1692,19 @@ async function loadAdminChatMessages(tid){
     });
 }
 
+async function toggleTicketStatus(){
+  if(!curTicketId)return;
+  try{
+    const doc=await db.collection('tickets').doc(curTicketId).get();
+    const current=doc.data().status;
+    const newStatus=current==='open'?'closed':'open';
+    await db.collection('tickets').doc(curTicketId).update({status:newStatus});
+    document.getElementById('toggle-status-btn').textContent=newStatus==='open'?'Close Ticket':'Reopen Ticket';
+    showNotif('Updated','Ticket status changed to '+newStatus,'green');
+    loadAdminInbox();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
 async function sendReply(){
   const r=document.getElementById('admin-reply').value.trim();
   if(!r){showNotif('Error','Type a reply first','red');return;}
@@ -1573,6 +1744,213 @@ async function loadAdminUsers(){
       </tr>`;
     }).join('');
   }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
+}
+
+// ======= ADMIN SERVICES CRUD =======
+const PLATFORM_EMOJI={yt:'▶️',fb:'📘',li:'💼',ig:'📸',tt:'🎵'};
+const PLATFORM_NAMES={yt:'YouTube',fb:'Facebook',li:'LinkedIn',ig:'Instagram',tt:'TikTok'};
+
+function toggleAddSvcForm(editData){
+  const wrap=document.getElementById('svc-form-wrap');
+  const isHidden=wrap.style.display==='none';
+  wrap.style.display=isHidden?'block':'none';
+  if(isHidden && !editData){
+    // Reset form for new service
+    document.getElementById('svc-form-title').textContent='Add New Service';
+    document.getElementById('edit-svc-id').value='';
+    document.getElementById('svc-name-input').value='';
+    document.getElementById('svc-price-input').value='';
+    document.getElementById('svc-ticket-input').value='';
+    document.getElementById('svc-tags-input').value='';
+    document.getElementById('svc-platform-input').value='yt';
+  }
+}
+
+function editSvc(id, name, platform, price, ticket, tags){
+  const wrap=document.getElementById('svc-form-wrap');
+  wrap.style.display='block';
+  document.getElementById('svc-form-title').textContent='Edit Service';
+  document.getElementById('edit-svc-id').value=id;
+  document.getElementById('svc-name-input').value=name;
+  document.getElementById('svc-platform-input').value=platform;
+  document.getElementById('svc-price-input').value=price;
+  document.getElementById('svc-ticket-input').value=ticket||'';
+  document.getElementById('svc-tags-input').value=tags||'';
+  wrap.scrollIntoView({behavior:'smooth'});
+}
+
+async function saveSvcToFirestore(){
+  const name=document.getElementById('svc-name-input').value.trim();
+  const platform=document.getElementById('svc-platform-input').value;
+  const price=parseFloat(document.getElementById('svc-price-input').value);
+  const ticket=document.getElementById('svc-ticket-input').value.trim()||'-';
+  const tagsRaw=document.getElementById('svc-tags-input').value;
+  const tags=tagsRaw.split(',').map(t=>t.trim()).filter(Boolean);
+  if(!name||!price){showNotif('Error','Name and Price required','red');return;}
+  const editId=document.getElementById('edit-svc-id').value;
+  try{
+    if(editId){
+      await db.collection('services').doc(editId).update({name,platform,price,ticket,tags});
+      showNotif('Updated!','Service updated successfully','green');
+    } else {
+      await db.collection('services').add({name,platform,price,ticket,tags,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      showNotif('Added!','New service added','green');
+    }
+    document.getElementById('svc-form-wrap').style.display='none';
+    loadAdminServices();
+    // Reload services for users
+    loadServicesFromFirestore(curPlatform);
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function deleteSvc(id){
+  if(!confirm('Delete this service?'))return;
+  try{
+    await db.collection('services').doc(id).delete();
+    showNotif('Deleted','Service deleted','red');
+    loadAdminServices();
+    loadServicesFromFirestore(curPlatform);
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function loadAdminServices(){
+  const tb=document.getElementById('admin-svc-table');
+  if(!tb)return;
+  try{
+    const snap=await db.collection('services').get();
+    if(snap.empty){
+      tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">No services yet. Add one!</td></tr>';
+      return;
+    }
+    tb.innerHTML=snap.docs.map(d=>{
+      const s=d.data(); const sid=d.id;
+      const tagsStr=s.tags?(Array.isArray(s.tags)?s.tags.join(', '):s.tags):'';
+      const nameEsc=s.name.replace(/'/g,"\'");
+      const tagsEsc=tagsStr.replace(/'/g,"\'");
+      return`<tr>
+        <td>${PLATFORM_EMOJI[s.platform]||''} ${PLATFORM_NAMES[s.platform]||s.platform}</td>
+        <td style="max-width:200px">${s.name}</td>
+        <td style="color:var(--accent3);font-weight:600">৳ ${(s.price||0).toLocaleString()}</td>
+        <td style="color:var(--text3);font-size:.78rem;max-width:150px;overflow:hidden;text-overflow:ellipsis">${tagsStr}</td>
+        <td class="td-acts">
+          <button class="act-btn app-btn" onclick="editSvc('${sid}','${nameEsc}','${s.platform}',${s.price},'${s.ticket||''}','${tagsEsc}')">Edit</button>
+          <button class="act-btn rej-btn" onclick="deleteSvc('${sid}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }catch(e){if(tb)tb.innerHTML='<tr><td colspan="5" style="color:var(--red);padding:1rem">'+e.message+'</td></tr>';}
+}
+
+// Load services from Firestore for users (fallback to local if empty)
+async function loadServicesFromFirestore(platform){
+  const c=document.getElementById('svc-container');
+  if(!c)return;
+  try{
+    const snap=await db.collection('services').where('platform','==',platform).get();
+    if(snap.empty){
+      // Fallback to local data
+      renderSvcs(platform);
+      return;
+    }
+    c.innerHTML=snap.docs.map(d=>{
+      const s=d.data();
+      const tags=Array.isArray(s.tags)?s.tags:[];
+      return`<div class="service-card">
+        <div class="svc-head">
+          <div class="svc-name">${PLATFORM_EMOJI[s.platform]||''} ${s.name}</div>
+          <div class="svc-price">৳ ${(s.price||0).toLocaleString()}/1K</div>
+        </div>
+        <div class="svc-tags">
+          ${tags.map(t=>`<span class="tag ${tagCls(t)}">${t}</span>`).join('')}
+          ${s.ticket&&s.ticket!=='-'?`<span class="tag tag-gold">Ticket: ${s.ticket}</span>`:''}
+        </div>
+        <button class="order-btn" onclick='openOrderModal(${JSON.stringify({name:s.name,price:s.price,tags:tags,ticket:s.ticket||"-"})})'>Order Now</button>
+      </div>`;
+    }).join('');
+  }catch(e){renderSvcs(platform);}
+}
+
+// ======= ADMIN SERVICES =======
+function toggleAddSvcForm(editData=null){
+  const form=document.getElementById('svc-form');
+  const isHidden=form.style.display==='none';
+  form.style.display=isHidden?'block':'none';
+  if(!isHidden) return;
+  if(editData){
+    document.getElementById('svc-form-title').textContent='Edit Service';
+    document.getElementById('svc-edit-id').value=editData.id;
+    document.getElementById('svc-name').value=editData.name||'';
+    document.getElementById('svc-platform').value=editData.platform||'YouTube';
+    document.getElementById('svc-price').value=editData.price||'';
+    document.getElementById('svc-ticket').value=editData.ticket||'';
+    document.getElementById('svc-tags').value=(editData.tags||[]).join(', ');
+  } else {
+    document.getElementById('svc-form-title').textContent='Add New Service';
+    document.getElementById('svc-edit-id').value='';
+    document.getElementById('svc-name').value='';
+    document.getElementById('svc-price').value='';
+    document.getElementById('svc-ticket').value='';
+    document.getElementById('svc-tags').value='';
+  }
+}
+
+async function saveService(){
+  const name=document.getElementById('svc-name').value.trim();
+  const platform=document.getElementById('svc-platform').value;
+  const price=parseFloat(document.getElementById('svc-price').value);
+  const ticket=document.getElementById('svc-ticket').value.trim()||'-';
+  const tagsRaw=document.getElementById('svc-tags').value;
+  const tags=tagsRaw.split(',').map(t=>t.trim()).filter(Boolean);
+  const editId=document.getElementById('svc-edit-id').value;
+  if(!name||!price){showNotif('Error','Name and price required','red');return;}
+  try{
+    const data={name,platform,price,ticket,tags,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(editId){
+      await db.collection('services').doc(editId).update(data);
+      showNotif('Updated!','Service updated successfully','green');
+    } else {
+      data.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('services').add(data);
+      showNotif('Added!','New service added successfully','green');
+    }
+    toggleAddSvcForm();
+    loadAdminServices();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function deleteService(id){
+  if(!confirm('Delete this service?')) return;
+  try{
+    await db.collection('services').doc(id).delete();
+    showNotif('Deleted!','Service removed','red');
+    loadAdminServices();
+  }catch(e){showNotif('Error',e.message,'red');}
+}
+
+async function loadAdminServices(){
+  const tb=document.getElementById('admin-svc-tb');
+  if(!tb) return;
+  try{
+    const snap=await db.collection('services').get();
+    if(snap.empty){
+      tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1.75rem">No services yet. Add one above!</td></tr>';
+      return;
+    }
+    tb.innerHTML=snap.docs.map(d=>{
+      const s=d.data(); const sid=d.id;
+      const editJson=JSON.stringify({id:sid,name:s.name,platform:s.platform,price:s.price,ticket:s.ticket,tags:s.tags}).replace(/"/g,'&quot;');
+      return`<tr>
+        <td><span style="font-size:.85rem">${s.platform||'—'}</span></td>
+        <td style="font-weight:500;font-size:.84rem">${s.name}</td>
+        <td style="color:var(--accent3)">৳ ${(s.price||0).toLocaleString()}</td>
+        <td style="font-size:.75rem;color:var(--text3)">${(s.tags||[]).slice(0,2).join(', ')}</td>
+        <td class="td-acts">
+          <button class="act-btn app-btn" onclick="toggleAddSvcForm(${editJson})">Edit</button>
+          <button class="act-btn rej-btn" onclick="deleteService('${sid}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="5" style="color:var(--red);padding:1rem">Error loading</td></tr>';}
 }
 
 // ======= UTILS =======
